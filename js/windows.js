@@ -1,4 +1,4 @@
-import Socials from "./socials.js"
+import Socials from "./socials.js";
 
 export default class Windows {
   constructor(app) {
@@ -6,19 +6,30 @@ export default class Windows {
     this.socials = new Socials(app);
 
     this.style = new PIXI.TextStyle({
-      fontFamily: 'Arial', fontSize: RELSCALE * 15, fill: '#4e4e4e', align: 'center'
+      fontFamily: "Arial",
+      fontSize: RELSCALE * 15,
+      fill: "#4e4e4e",
+      align: "center",
     });
     this.scoreStyle = new PIXI.TextStyle({
-      fontFamily: 'Arial', fontSize: RELSCALE * 23, fill: '#4b4b4b'
+      fontFamily: "Arial",
+      fontSize: RELSCALE * 23,
+      fill: "#4b4b4b",
     });
     this.couponInfoStyle = new PIXI.TextStyle({
-      fontFamily: 'Arial', fontSize: RELSCALE * 10, fill: '#4b4b4b'
+      fontFamily: "Arial",
+      fontSize: RELSCALE * 10,
+      fill: "#4b4b4b",
     });
     this.creditsStyle = new PIXI.TextStyle({
-      fontFamily: 'Arial', fontSize: RELSCALE * 12, fill: '#4e4e4e'
+      fontFamily: "Arial",
+      fontSize: RELSCALE * 12,
+      fill: "#4e4e4e",
     });
     this.titlesStyle = new PIXI.TextStyle({
-      fontFamily: 'Arial', fontSize: RELSCALE * 12, fill: '#01C9E1'
+      fontFamily: "Arial",
+      fontSize: RELSCALE * 12,
+      fill: "#01C9E1",
     });
 
     this.removedInstruct = false;
@@ -35,11 +46,11 @@ export default class Windows {
   }
 
   setUpCode() {
-    fetch('inputData/couponCode.txt')
-      .then(response => response.text())
-      .then(data => {
+    fetch("inputData/couponCode.txt")
+      .then((response) => response.text())
+      .then((data) => {
         this.couponCode = data;
-      })
+      });
     this.code = new PIXI.Text("SOMETHING WENT WRONG", this.scoreStyle);
     this.code.anchor.set(0.5);
     this.code.x = WIDTH / 2;
@@ -50,17 +61,17 @@ export default class Windows {
   }
 
   setUpPuns() {
-    fetch('inputData/win_puns.txt')
-      .then(response => response.text())
-      .then(data => {
-        this.winPuns = data.split('\n');
-      })
+    fetch("inputData/win_puns.txt")
+      .then((response) => response.text())
+      .then((data) => {
+        this.winPuns = data.split("\n");
+      });
 
-    fetch('inputData/lose_puns.txt')
-      .then(response => response.text())
-      .then(data => {
-        this.losePuns = data.split('\n');
-      })
+    fetch("inputData/lose_puns.txt")
+      .then((response) => response.text())
+      .then((data) => {
+        this.losePuns = data.split("\n");
+      });
     this.pun = new PIXI.Text("SOMETHING WENT WRONG", this.scoreStyle);
     this.pun.anchor.set(0.5);
     this.pun.x = WIDTH / 2;
@@ -70,33 +81,39 @@ export default class Windows {
   }
 
   setUpSprites() {
-    this.popUpBackground = new PIXI.Sprite.from("../sprites/popupbackground.png");
+    this.popUpBackground = new PIXI.Sprite.from(
+      "../sprites/popupbackground.png"
+    );
     this.popUpBackground.anchor.set(0.5);
     this.popUpBackground.scale.set(SCALE * 0.6);
     this.popUpBackground.x = WIDTH / 2;
     this.popUpBackground.y = HEIGHT / 2;
     this.popUpBackground.zIndex = 3;
 
-    this.scoreBackgroundLose = new PIXI.Sprite.from("../sprites/scoreBackgroundLose.png");
+    this.scoreBackgroundLose = new PIXI.Sprite.from(
+      "../sprites/scoreBackgroundLose.png"
+    );
     this.scoreBackgroundLose.anchor.set(0.5);
     this.scoreBackgroundLose.scale.set(SCALE * 0.4);
     this.scoreBackgroundLose.x = WIDTH / 2;
     this.scoreBackgroundLose.y = this.popUpBackground.y / 2.1;
     this.scoreBackgroundLose.zIndex = 3;
 
-    this.scoreBackgroundWin = new PIXI.Sprite.from("../sprites/scoreBackgroundWin.png");
+    this.scoreBackgroundWin = new PIXI.Sprite.from(
+      "../sprites/scoreBackgroundWin.png"
+    );
     this.scoreBackgroundWin.anchor.set(0.5);
     this.scoreBackgroundWin.scale.set(SCALE * 0.75);
     this.scoreBackgroundWin.x = WIDTH / 2;
     this.scoreBackgroundWin.y = this.popUpBackground.y * 1.05;
     this.scoreBackgroundWin.zIndex = 3;
 
-    this.creditsButton = document.createElement('IMG');
+    this.creditsButton = document.createElement("IMG");
     this.creditsButton.classList.add("creditsButton");
     this.creditsButton.setAttribute("src", "../sprites/infobutton.png");
     this.creditsButton.style.width = "4%";
     this.creditsButton.style.position = "absolute";
-    this.creditsButton.style.cursor = 'pointer';
+    this.creditsButton.style.cursor = "pointer";
     this.creditsButton.style.zIndex = "10";
 
     this.creditsButton.onclick = this.showCredits.bind(this);
@@ -107,29 +124,50 @@ export default class Windows {
 
   setUpInstruct() {
     let instructText;
+    window.addEventListener("keydown", this.handleKeyDown.bind(this));
 
-    this.token = new PIXI.AnimatedSprite(this.app.loader.resources.tokenSheet.spritesheet.animations["tokenSprite"]);
+    this.token = new PIXI.AnimatedSprite(
+      this.app.loader.resources.tokenSheet.spritesheet.animations["tokenSprite"]
+    );
     this.token.anchor.set(0.45);
     this.token.scale.set(SCALE * 0.2);
     this.token.x = this.popUpBackground.x * 0.99;
-    if(!PIXI.utils.isMobile.any){this.token.y = this.popUpBackground.y * 1.5;}
-    else{this.token.y = this.popUpBackground.y * 1.2;}
+    if (!PIXI.utils.isMobile.any) {
+      this.token.y = this.popUpBackground.y * 1.5;
+    } else {
+      this.token.y = this.popUpBackground.y * 1.2;
+    }
     this.token.zIndex = 3;
     this.token.animationSpeed = 0.135;
     this.token.play();
 
     if (!PIXI.utils.isMobile.any) {
-      instructText = "Deliver the laundry without" + '\n' +
-        "hitting any obstacles!" + '\n' + '\n' +
-        "Press space/up arrow key to jump" + '\n' + '\n' +
-        "Press down arrow key to duck" + '\n' + '\n' +
+      instructText =
+        "Deliver the laundry without" +
+        "\n" +
+        "hitting any obstacles!" +
+        "\n" +
+        "\n" +
+        "Press space/up arrow key to jump" +
+        "\n" +
+        "\n" +
+        "Press down arrow key to duck" +
+        "\n" +
+        "\n" +
         "Collect tokens       for extra points";
-    }
-    else {
-      instructText = "Deliver the laundry without" + '\n' +
-        "hitting any obstacles!" + '\n' + '\n' +
-        "Tap sky to jump, tap street to duck" + '\n' + '\n' +
-        "Collect tokens         for extra points" + '\n' + '\n' +
+    } else {
+      instructText =
+        "Deliver the laundry without" +
+        "\n" +
+        "hitting any obstacles!" +
+        "\n" +
+        "\n" +
+        "Tap sky to jump, tap street to duck" +
+        "\n" +
+        "\n" +
+        "Collect tokens         for extra points" +
+        "\n" +
+        "\n" +
         "Tip: Turn your device horizontally!";
     }
     this.instructMessage = new PIXI.Text(instructText, this.style);
@@ -137,13 +175,20 @@ export default class Windows {
     this.instructMessage.x = WIDTH / 2;
     this.instructMessage.y = this.popUpBackground.y;
     this.instructMessage.zIndex = 3;
-    this.instructMessage.texture.baseTexture.scaleMode = PIXI.SCALE_MODES.LINEAR;
+    this.instructMessage.texture.baseTexture.scaleMode =
+      PIXI.SCALE_MODES.LINEAR;
 
     this.setupXButton(95, 10, "instruct");
 
     container.addChild(this.popUpBackground);
     container.addChild(this.token);
     container.addChild(this.instructMessage);
+  }
+
+  handleKeyDown(event) {
+    if (event.code === "Space" && !this.removedInstruct) {
+      this.removeInstruct();
+    }
   }
 
   removeInstruct() {
@@ -157,9 +202,9 @@ export default class Windows {
   }
 
   setupXButton(x, y, toRemove) {
-    this.laundrDiv = document.getElementById('laundr-game');
+    this.laundrDiv = document.getElementById("laundr-game");
 
-    this.invisDiv = document.createElement('div');
+    this.invisDiv = document.createElement("div");
     this.invisDiv.classList.add("invisDiv");
     this.invisDiv.style.width = "5%";
     this.invisDiv.style.position = "absolute";
@@ -168,29 +213,32 @@ export default class Windows {
     this.invisDiv.style.zIndex = "3";
     this.laundrDiv.appendChild(this.invisDiv);
 
-    this.invisDiv.style.top = '50%';
+    this.invisDiv.style.top = "50%";
     this.invisDiv.style.left = "50%";
     this.invisDiv.style.transform = "translate(-50%, -50%)";
 
-    this.xButton = document.createElement('div');
-    this.xButton.classList.add('xButton_inst');
+    this.xButton = document.createElement("div");
+    this.xButton.classList.add("xButton_inst");
     this.xButton.innerHTML = "×";
     this.xButton.style.fontSize = "4vw";
     this.xButton.style.fontWeight = "900";
     this.xButton.style.fontFamily = "Impact";
     this.xButton.style.position = "absolute";
-    this.xButton.style.cursor = 'pointer';
+    this.xButton.style.cursor = "pointer";
     this.invisDiv.appendChild(this.xButton);
 
     let xLoc = x.toString() + "%";
-    let yLoc = y.toString() + "%"
+    let yLoc = y.toString() + "%";
 
     this.xButton.style.top = yLoc;
     this.xButton.style.left = xLoc;
     this.xButton.style.transform = "translate(-50%, -50%)";
 
-    if (toRemove == "instruct") { this.xButton.onclick = this.removeInstruct.bind(this); }
-    else if (toRemove == "credits") { this.xButton.onclick = this.setUpWin.bind(this); }
+    if (toRemove == "instruct") {
+      this.xButton.onclick = this.removeInstruct.bind(this);
+    } else if (toRemove == "credits") {
+      this.xButton.onclick = this.setUpWin.bind(this);
+    }
   }
 
   getScore(score) {
@@ -214,10 +262,14 @@ export default class Windows {
     this.rand = Math.floor(Math.random() * Math.floor(this.losePuns.length));
     this.punSize;
     if (this.popUpBackground.width == 0) this.punSize = 19;
-    else this.punSize = (1 / (this.losePuns[this.rand].length % this.popUpBackground.width));
+    else
+      this.punSize =
+        1 / (this.losePuns[this.rand].length % this.popUpBackground.width);
 
     this.punStyle = new PIXI.TextStyle({
-      fontFamily: 'Arial', fontSize: (this.popUpBackground.width * this.punSize) * 1.5, fill: '#4b4b4b'
+      fontFamily: "Arial",
+      fontSize: this.popUpBackground.width * this.punSize * 1.5,
+      fill: "#4b4b4b",
     });
 
     this.pun.text = this.losePuns[this.rand];
@@ -239,19 +291,21 @@ export default class Windows {
 
   setUpWin() {
     this.socials.endGame();
-    
-    if (this.canvasSize < 1090 && !this.socials.smallScreen) this.socials.switchSizes();
-    else if (this.canvasSize >= 1090 && this.socials.smallScreen) this.socials.switchSizes();
-    
+
+    if (this.canvasSize < 1090 && !this.socials.smallScreen)
+      this.socials.switchSizes();
+    else if (this.canvasSize >= 1090 && this.socials.smallScreen)
+      this.socials.switchSizes();
+
     if (this.creditsShowing) this.removeCredits();
 
     this.invisDiv.style.left = "-999%";
     this.creditsShowing = false;
 
-    let topText = 'Use coupon code';
+    let topText = "Use coupon code";
     this.code.text = this.couponCode;
     this.code.resolution = RELSCALE * 1.5;
-    let bottomText = 'for 15% off your next order!';
+    let bottomText = "for 15% off your next order!";
 
     this.scoreMessage.text = Math.round(this.score);
     this.scoreMessage.y = this.scoreBackgroundWin.y / 2.5;
@@ -260,10 +314,14 @@ export default class Windows {
     this.rand = Math.floor(Math.random() * Math.floor(this.winPuns.length));
     this.punSize;
     if (this.popUpBackground.width == 0) this.punSize = 19;
-    else this.punSize = (1 / (this.winPuns[this.rand].length % this.popUpBackground.width));
+    else
+      this.punSize =
+        1 / (this.winPuns[this.rand].length % this.popUpBackground.width);
 
     this.punStyle = new PIXI.TextStyle({
-      fontFamily: 'Arial', fontSize: (this.popUpBackground.width * this.punSize) * 1.5, fill: '#4b4b4b'
+      fontFamily: "Arial",
+      fontSize: this.popUpBackground.width * this.punSize * 1.5,
+      fill: "#4b4b4b",
     });
 
     this.pun.text = this.winPuns[this.rand];
@@ -275,15 +333,18 @@ export default class Windows {
     this.topMessageCoupon.y = this.popUpBackground.y;
     this.topMessageCoupon.zIndex = 15;
     this.topMessageCoupon.resolution = RELSCALE * 1.5;
-    this.topMessageCoupon.texture.baseTexture.scaleMode = PIXI.SCALE_MODES.LINEAR;
+    this.topMessageCoupon.texture.baseTexture.scaleMode =
+      PIXI.SCALE_MODES.LINEAR;
 
     this.bottomMessageCoupon = new PIXI.Text(bottomText, this.couponInfoStyle);
     this.bottomMessageCoupon.anchor.set(0.5);
     this.bottomMessageCoupon.x = WIDTH / 2;
-    this.bottomMessageCoupon.y = this.popUpBackground.y + (this.popUpBackground.y * 0.3);
+    this.bottomMessageCoupon.y =
+      this.popUpBackground.y + this.popUpBackground.y * 0.3;
     this.bottomMessageCoupon.zIndex = 15;
     this.bottomMessageCoupon.resolution = RELSCALE * 1.5;
-    this.bottomMessageCoupon.texture.baseTexture.scaleMode = PIXI.SCALE_MODES.LINEAR;
+    this.bottomMessageCoupon.texture.baseTexture.scaleMode =
+      PIXI.SCALE_MODES.LINEAR;
 
     container.addChild(this.popUpBackground);
     container.addChild(this.scoreBackgroundWin);
@@ -312,20 +373,35 @@ export default class Windows {
     this.creditsShowing = true;
     this.socials.resetGame();
 
-    this.titles = "Supervisor of Suds:" + '\n' + '\n' +
-      "Old man in a laundromat:" + '\n' + '\n' +
-      "CEO of Clean Code:" + '\n' + '\n' +
-      "Director of Detergent:" + '\n' + '\n' +
-      "Stain Generator:" + '\n';
-    this.credits = '\n' +
-      "                                          Kyle Hassall" + '\n' +
-      '\n' +
-      "                                          Oliver Thomas" + '\n' +
-      '\n' +
-      "                                          Olivia Jacques-Baker" + '\n' +
-      '\n' +
-      "                                          Simran Patel" + '\n' +
-      '\n' +
+    this.titles =
+      "Supervisor of Suds:" +
+      "\n" +
+      "\n" +
+      "Old man in a laundromat:" +
+      "\n" +
+      "\n" +
+      "CEO of Clean Code:" +
+      "\n" +
+      "\n" +
+      "Director of Detergent:" +
+      "\n" +
+      "\n" +
+      "Stain Generator:" +
+      "\n";
+    this.credits =
+      "\n" +
+      "                                          Kyle Hassall" +
+      "\n" +
+      "\n" +
+      "                                          Oliver Thomas" +
+      "\n" +
+      "\n" +
+      "                                          Olivia Jacques-Baker" +
+      "\n" +
+      "\n" +
+      "                                          Simran Patel" +
+      "\n" +
+      "\n" +
       "                                          Michael Zinn";
 
     this.titleMessage = new PIXI.Text(this.titles, this.titlesStyle);
@@ -361,8 +437,9 @@ export default class Windows {
   }
 
   socialsResizing() {
-    if (this.canvasSize.width < 675 && !this.socials.smallScreen) this.socials.switchSizes();
-    else if (this.canvasSize.width >= 675 && this.socials.smallScreen) this.socials.switchSizes();
+    if (this.canvasSize.width < 675 && !this.socials.smallScreen)
+      this.socials.switchSizes();
+    else if (this.canvasSize.width >= 675 && this.socials.smallScreen)
+      this.socials.switchSizes();
   }
-
 }
