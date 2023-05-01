@@ -31,41 +31,20 @@
       src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v9.0"
       nonce="nU5nxJVO"
     ></script>
-    <style>
-      /* Light mode styles */
-      body.light-mode {
-        background-color: #f2f2f2;
-        color: black;
-      }
-
-      /* Dark mode styles */
-      body.dark-mode {
-        background-color: #121212;
-        color: white;
-      }
-
-      /* Toggle button styles */
-      .toggle-switch {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        cursor: pointer;
-        user-select: none;
-      }
-
-      .game-logo {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-        width: 50%;
-      }
-    </style>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      rel="noopener"
+      target="_blank"
+      href="../styles/indexStyles.css"
+    />
   </head>
   <body>
     <div>
-      <label class="toggle-switch">
-        <input type="checkbox" id="darkModeToggle" />
-        Dark Mode
+      <label class="toggle">
+        <input class="toggle-checkbox" type="checkbox" id="darkModeToggle" />
+        <div class="toggle-switch"></div>
+        <span class="toggle-label">Dark Mode</span>
       </label>
       <img
         src="../sprites/gameLogo.png"
