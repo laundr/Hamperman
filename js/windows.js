@@ -225,6 +225,7 @@ export default class Windows {
     this.xButton.style.fontFamily = "Impact";
     this.xButton.style.position = "absolute";
     this.xButton.style.cursor = "pointer";
+    this.xButton.style.color = "#FF5A39";
     this.invisDiv.appendChild(this.xButton);
 
     let xLoc = x.toString() + "%";
