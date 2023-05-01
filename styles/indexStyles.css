@@ -55,7 +55,7 @@ body {
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
 }
 .toggle-checkbox:checked + .toggle-switch {
-  background: #56c080;
+  background: #01c9e1;
 }
 .toggle-checkbox:checked + .toggle-switch:before {
   left: 30px;
