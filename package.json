@@ -4,12 +4,12 @@
   "description": "Run with npm start after npm install. Serves @ localhost:80 by default",
   "main": "server.js",
   "dependencies": {
-    "minimist": "^1.2.8",
-    "nodemon": "2.0.4",
     "dotenv": "8.2.0",
+    "foo": "^1.0.0",
+    "minimist": "^1.2.8",
+    "nodemon": "^2.0.22",
     "pixi-sound": "3.0.5"
   },
-  "devDependencies": {},
   "scripts": {
     "start": "nodemon server.js",
     "env": "echo PORT=80 > .env",
