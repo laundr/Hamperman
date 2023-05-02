@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-hamperman-dev-224239-authRole",
+      "UnauthRoleArn": "arn:aws:iam::638874415587:role/amplify-hamperman-dev-224239-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::638874415587:role/amplify-hamperman-dev-224239-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-hamperman-dev-224239-deployment",
+      "UnauthRoleName": "amplify-hamperman-dev-224239-unauthRole",
+      "StackName": "amplify-hamperman-dev-224239",
+      "StackId": "arn:aws:cloudformation:us-east-1:638874415587:stack/amplify-hamperman-dev-224239/01bddcd0-e893-11ed-b96a-12d656d0196f",
+      "AmplifyAppId": "d3b8ade680nbon"
+    },
+    "categories": {
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "d3b8ade680nbon",
+          "type": "cicd"
+        }
+      }
+    }
+  }
+}
