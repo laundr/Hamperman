@@ -4,7 +4,7 @@
   "description": "Run with npm start after npm install. Serves @ localhost:80 by default",
   "main": "server.js",
   "dependencies": {
-    "minimist": "^1.2.5",
+    "minimist": "^1.2.8",
     "nodemon": "2.0.4",
     "dotenv": "8.2.0",
     "pixi-sound": "3.0.5"
@@ -28,6 +28,6 @@
   },
   "homepage": "https://github.com/kylehassall27/Laundr_Game#readme",
   "engines": {
-    "node": "12.18.3"
+    "node": "16.15.0"
   }
 }
