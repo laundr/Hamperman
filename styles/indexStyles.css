@@ -4,14 +4,6 @@ body.light-mode {
   color: black;
 }
 
-/* Dark mode styles */
-body.dark-mode {
-  background-color: #121212;
-  color: white;
-}
-
-/* Toggle button styles */
-
 body {
   font-family: -apple-system, ".SFNSText-Regular", "Helvetica Neue", "Roboto",
     "Segoe UI", sans-serif;
