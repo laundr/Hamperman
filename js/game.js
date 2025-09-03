@@ -354,7 +354,7 @@ window.endGame = function () {
 
 
   if (leaderboard.isHighScore(score)) {
-    leaderboard.showNameEntry(score, () => {
+    leaderboard.showNameEntry(score, restartButton, () => {
         leaderboard.showLeaderboard();
     });
   } else {
@@ -511,7 +511,7 @@ function keysDown(e) {
     if (!started && firstLoad && windows.removedInstruct)
       startGame();
 
-    if (gameOver) {
+    if (gameOver && !document.getElementById('name-entry-form')) {
       if (lose && (performance.now() - timeout > 600))
         onClickRestart();
       else if (win && (performance.now() - timeout > 2500))

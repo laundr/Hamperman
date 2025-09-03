@@ -46,26 +46,40 @@ export default class Leaderboard {
             html += `<li>${entry.name} - ${Math.round(entry.score)}</li>`;
         });
         html += '</ol>';
+
         return html;
     }
 
-    showNameEntry(score, callback) {
+    showNameEntry(score, restartButton, callback) {
+        restartButton.interactive = false;
         this.container.innerHTML = this.createNameEntryHTML(score);
         this.container.style.display = 'block';
 
         const form = document.getElementById('name-entry-form');
         const nameInput = document.getElementById('name-input');
 
-        form.addEventListener('submit', (e) => {
+        const handleSubmit = (e) => {
             e.preventDefault();
             const name = nameInput.value.toUpperCase();
             if (name && /^[A-Z]{1,3}$/.test(name)) {
                 this.addScore(name, score);
+                restartButton.interactive = true;
                 callback();
             } else {
                 alert('Please enter 1-3 uppercase letters.');
             }
-        });
+        };
+
+        form.addEventListener('submit', handleSubmit);
+
+        const keydownHandler = (e) => {
+            if (e.key === ' ' && document.getElementById('name-entry-form')) {
+                e.preventDefault();
+                handleSubmit(e);
+                window.removeEventListener('keydown', keydownHandler);
+            }
+        };
+        window.addEventListener('keydown', keydownHandler);
     }
 
     createNameEntryHTML(score) {
