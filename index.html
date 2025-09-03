@@ -50,7 +50,7 @@
     </div>
     <!-- The game itself will render inside the canvas element -->
     <div class="container">
-      <div class="laundr-game" id="laundr-game" style="position: relative">
+      <div class="laundr-game" id="laundr-game" style="position: relative; z-index: 1;">
         <canvas
           class="pixiCanvas"
           id="pixiCanvas"
@@ -89,7 +89,7 @@
     </div>
   </body>
   <footer style="text-align: center; padding: 20px; position: fixed; bottom: 0; left: 0; width: 100%;">
-    <img src="../sprites/LogoBlue.png" alt="Laundr Logo" style="width:160px; vertical-align: middle" href="https://laundr.io"/>
+    <img src="../sprites/LogoBlue.png" alt="Laundr Logo" style="width:160px; vertical-align: middle; z-index: -1;" href="https://laundr.io"/>
     <p>&copy; Laundr Inc. 2025. All rights reserved.</p>
   </footer>
 </html>
