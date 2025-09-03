@@ -85,10 +85,10 @@ export default class Leaderboard {
     createNameEntryHTML(score) {
         return `
             <h2>New High Score!</h2>
-            <p>Your score: ${Math.round(score)}</p>
+            <h1>${Math.round(score)}</h1>
             <form id="name-entry-form">
                 <input type="text" id="name-input" placeholder="Enter your name (3 letters)" maxlength="3" pattern="[A-Z]{3}" required>
-                <button type="submit">Submit</button>
+                <button type="submit" style="background-color: #01c9e1; padding: 1; border-width: 0; border-radius: 0; color: white; font-weight: bold;">Submit</button>
             </form>
         `;
     }
