@@ -13,7 +13,7 @@ import Socials from "./socials.js"
 // === Basic app setup === //
 let canvas = document.getElementById('pixiCanvas');
 const app = new PIXI.Application({
-  width: canvas.getBoundingClientRect().width, height: canvas.getBoundingClientRect().width / 4, backgroundColor: 0xF9F9F9, resolution: window.devicePixelRatio || 1, view: canvas,
+  width: canvas.getBoundingClientRect().width, height: canvas.getBoundingClientRect().width / 4, backgroundColor: 0xF5F5F4, resolution: window.devicePixelRatio || 1, view: canvas,
 });
 canvas.style.zIndex = "-1";
 PIXI.sound.context.paused = true;
@@ -30,6 +30,14 @@ window.RELSCALE = HEIGHT / 225; // Scale relative to original scale.  Other scal
 window.SCORE = 0;
 window.FPSSCALE;
 window.loaded = false;
+window.addEventListener("keydown", function (e) {
+  // Keys that normally scroll the page
+  const keysToBlock = [" ", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+
+  if (keysToBlock.includes(e.key)) {
+    e.preventDefault();
+  }
+}, false);
 
 window.container = new PIXI.Container();
 app.stage.addChild(container);
