@@ -20,6 +20,7 @@
   -->
     <script src="/node_modules/pixi-sound/dist/pixi-sound.js"></script>
     <script type="module" src="/js/game.js"></script>
+    <script type="module" src="/js/leaderboard.js"></script>
     <script
       async
       src="https://platform.twitter.com/widgets.js"
@@ -67,7 +68,7 @@
           ,
           style="width: 100%"
         ></canvas>
-
+        <div id="leaderboard-container" style="position: absolute; top: 10%; left: 75%; transform: translate(-50%, 0); background-color: white; padding: 20px; border-radius: 10px; display: none; z-index: 10; width: 300px; border: 2px solid black;"></div>
         <!-- html version of social sharing options -->
         <div class="socials" id="socials" style="width: 25%; min-width: 70px">
           <div

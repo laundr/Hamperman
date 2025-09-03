@@ -9,6 +9,7 @@ import HouseGen from "./houseGen.js"
 import Player from "./player.js"
 import Windows from "./windows.js"
 import Socials from "./socials.js"
+import Leaderboard from "./leaderboard.js";
 
 // === Basic app setup === //
 let canvas = document.getElementById('pixiCanvas');
@@ -69,6 +70,7 @@ window.houseGen;
 let player;
 let windows;
 let socials;
+let leaderboard;
 let backgroundFront, backgroundBack;
 window.groundLevel = HEIGHT * .9;
 
@@ -216,6 +218,7 @@ function loadOnce() {
       container.addChild(endHouse);
 
       socials = new Socials(app);
+      leaderboard = new Leaderboard('leaderboard-container');
 
       //add windows;
       windows = new Windows(app);
@@ -350,6 +353,14 @@ window.endGame = function () {
   clearTimeout(twtTimeout);
 
 
+  if (leaderboard.isHighScore(score)) {
+    leaderboard.showNameEntry(score, () => {
+        leaderboard.showLeaderboard();
+    });
+  } else {
+    leaderboard.showLeaderboard();
+  }
+
   if (score > highscore) {
     highscore = score;
     if (highscore > 999) highscore = 999;
@@ -428,6 +439,7 @@ function onReleaseMute() {
 }
 
 function cleanUp() {
+  leaderboard.hideLeaderboard();
   if (win) {
     player.reset();
     windows.removeWin();
