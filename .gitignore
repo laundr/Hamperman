@@ -11,3 +11,8 @@ awsconfiguration.json
 .secret-*
 **.sample
 #amplify-do-not-edit-end
+
+
+# Antigravity Persistent Storage
+agents/
+.agents/
