@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Jump, duck, and collect tokens in Hamperman's endless laundry run." />
     <title>Laundr Presents: Hamperman</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Laundr" />
+    <meta property="og:url" content="https://laundr.io/hamperman" />
+    <meta property="og:title" content="Hamperman: an endless laundry run" />
+    <meta property="og:description" content="Jump, duck, and collect tokens in Hamperman's endless laundry run. Play free from Laundr." />
+    <meta property="og:image" content="https://hamperman.laundr.io/api/og" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Hamperman running down a neighborhood street" />
+    <meta name="twitter:card" content="summary_large_image" />
     <base href="/hamperman/" />
     <link rel="icon" href="sprites/hamperman-favicon.ico" sizes="16x16 32x32 48x48" />
     <link rel="icon" href="sprites/hamperman-favicon.png" type="image/png" sizes="32x32" />
@@ -81,6 +91,7 @@
                 <details class="share-details">
                   <summary>SHARE SCORE</summary>
                   <div class="share-actions">
+                    <button id="native-share" type="button" hidden>Share</button>
                     <button id="copy-score" type="button">Copy score</button>
                     <a id="share-twitter" target="_blank" rel="noopener noreferrer">X / Twitter</a>
                     <a id="share-facebook" target="_blank" rel="noopener noreferrer">Facebook</a>

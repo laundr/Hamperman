@@ -7,6 +7,10 @@
     {
       "source": "/hamperman/:path*",
       "destination": "/:path*"
+    },
+    {
+      "source": "/score/:score",
+      "destination": "/api/score?score=:score"
     }
   ]
 }

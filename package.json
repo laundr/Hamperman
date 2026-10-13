@@ -4,6 +4,7 @@
   "description": "Run with npm start after npm install. Serves @ localhost:80 by default",
   "main": "server.js",
   "dependencies": {
+    "@vercel/og": "0.8.6",
     "dotenv": "8.2.0",
     "foo": "^1.0.0",
     "minimist": "^1.2.8",

@@ -491,5 +491,16 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
       assert.equal(get('life-status').textContent, 'At 1,000');
     } finally { Object.defineProperty(Player.prototype, 'bounds', original); }
   });
+  const share = await import(moduleURL('api/_share.mjs'));
+  test('Shared score links get preview tags for that score', () => {
+    assert.equal(share.parseScore('1234'), 1234);
+    assert.equal(share.parseScore('-5'), 0);
+    assert.equal(share.parseScore('"><script>'), 0);
+    const html = share.shareMeta(fs.readFileSync(path.resolve(__dirname, '..', 'index.html'), 'utf8'), 12345);
+    assert.match(html, /property="og:title" content="I scored 12,345 in Hamperman!"/);
+    assert.match(html, /property="og:image" content="https:\/\/hamperman\.laundr\.io\/api\/og\?score=12345"/);
+    assert.match(html, /property="og:url" content="https:\/\/laundr\.io\/hamperman\/score\/12345"/);
+    assert.match(html, /property="og:image:width" content="1200"/);
+  });
   console.log(`\n${passed} tests passed.`);
 })().catch(error => { console.error(error); process.exitCode = 1; });
