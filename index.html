@@ -3,104 +3,113 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Jump, duck, and collect tokens in Hamperman's endless laundry run." />
     <title>Laundr Presents: Hamperman</title>
-    <link rel="icon" href="sprites/LogoSquare.jpg" type="image/png" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.3.3/pixi.min.js"></script>
-    <!-- <script src='js/pixi.min.js'></script> -->
-    <!-- Provided in case cdnjs stops hosting our file -->
-    <script>
-      // Will use local copy of pixi.min.js incase cdnjs is down or stops hosting our file
-      if (typeof PIXI == "undefined") {
-        document.write('<script src="js/pixi.min.js">\x3C/script>');
-      }
-    </script>
-    <!-- This style line (IN ADDITION TO HOW RESIZING WORKS IN game.js) may cause unexpected behavior when inserting it into their page for a demo, depending how it is inserted (iframe, js directly in their site, etc).
-    If directly inserting js into their page, you may want to look into using js to insert the app.view into a div which you can then work with
-    There also will probably be problems with the touchscreen code
-  -->
-    <script src="/node_modules/pixi-sound/dist/pixi-sound.js"></script>
-    <script type="module" src="/js/game.js"></script>
-    <script type="module" src="/js/leaderboard.js"></script>
-    <script
-      async
-      src="https://platform.twitter.com/widgets.js"
-      charset="utf-8"
-    ></script>
-    <script
-      async
-      defer
-      crossorigin="anonymous"
-      src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v9.0"
-      nonce="nU5nxJVO"
-    ></script>
-    <link
-      rel="stylesheet"
-      type="text/css"
-      rel="noopener"
-      target="_blank"
-      href="../styles/indexStyles.css"
-    />
-    <!-- Google tag (gtag.js) -->
+    <link rel="icon" href="sprites/LogoSquare.jpg" type="image/jpeg" />
+    <link rel="stylesheet" href="styles/indexStyles.css" />
+    <script defer src="js/pixi.min.js"></script>
+    <script defer src="node_modules/pixi-sound/dist/pixi-sound.js"></script>
+    <script type="module" src="js/game.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZS58R7E0R3"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
+      function gtag() { dataLayer.push(arguments); }
       gtag('js', new Date());
-
       gtag('config', 'G-ZS58R7E0R3');
     </script>
   </head>
   <body>
-    <div>
-      <img
-        src="../sprites/gameLogo.png"
-        alt="Hamperman Game Logo"
-        class="game-logo"
-      />
-      <script src="js/darkMode.js"></script>
-    </div>
-    <!-- The game itself will render inside the canvas element -->
-    <div class="container">
-      <div class="laundr-game" id="laundr-game" style="position: relative; z-index: 1;">
-        <canvas
-          class="pixiCanvas"
-          id="pixiCanvas"
-          ,
-          style="width: 100%"
-        ></canvas>
-        <div id="leaderboard-container" style="position: absolute; top: 10%; left: 75%; transform: translate(-50%, 0); background-image: url('../sprites/popupbackground.png'); background-size: 100% 100%; padding: 40px; border-radius: 10px; display: none; z-index: 10; width: 300px; color: #4e4e4e; text-align: center;"></div>
-        <!-- html version of social sharing options -->
-        <div class="socials" id="socials" style="width: 25%; min-width: 70px">
-          <div
-            class="twtDiv"
-            id="twtDiv"
-            style="display: inline-block; vertical-align: top; min-width: 40%"
-          ></div>
-          <div
-            id="fb-root"
-            style="display: inline-block; vertical-align: top; width: 0%"
-          ></div>
-          <div
-            class="fbDiv fb-share-button"
-            id="fbDiv"
-            data-href="https://www.laundr.io/404"
-            data-layout="button"
-            data-size="small"
-            style="display: inline-block; vertical-align: top; min-width: 40%"
-          >
-            <a
-              target="_blank"
-              href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fwww.laundr.io%2F404&amp;src=sdkpreparse"
-              class="fb-xfbml-parse-ignore"
-              >Share</a
-            >
+    <main class="page">
+      <header class="page-header">
+        <img src="sprites/gameLogo.png" alt="Hamperman" class="game-logo" />
+      </header>
+      <section class="game-shell" aria-label="Hamperman game">
+        <div class="game-toolbar">
+          <div class="scoreboard">
+            <span>Score <strong id="score-value">0</strong></span>
+            <span>Hi score <strong id="best-value">0</strong></span>
+            <span>Tokens <strong id="tokens-value">0</strong></span>
+            <span>1UP <strong id="life-value">0</strong><small id="life-status">At 1,000</small></span>
+          </div>
+          <div class="toolbar-actions">
+            <button id="pause-button" type="button" disabled aria-label="Pause game">Pause</button>
+            <button id="mute-button" type="button" aria-pressed="false">Sound on</button>
           </div>
         </div>
-      </div>
-    </div>
+        <div class="milestone-row">
+          <span id="milestone-label">LEVEL 1</span>
+          <progress id="milestone-progress" max="30" value="0" aria-label="Progress to the next 30-second milestone"></progress>
+          <span id="run-time">0:00</span>
+        </div>
+        <div class="laundr-game" id="laundr-game">
+          <canvas id="pixiCanvas" tabindex="0" aria-label="Game field. Space or up arrow to jump; hold to jump farther. Down arrow to duck. P to pause."></canvas>
+          <div id="game-hint" class="game-hint" role="status" hidden></div>
+          <div id="game-overlay" class="game-overlay">
+            <section id="loading-panel" class="game-panel" role="status">
+              <h1>LOADING...</h1>
+              <p id="loading-message">PLEASE WAIT</p>
+              <button id="reload-button" type="button" hidden>Try again</button>
+            </section>
+            <section id="start-panel" class="game-panel" aria-labelledby="start-title" hidden>
+              <h1 id="start-title">READY?</h1>
+              <div class="menu-controls">
+                <div><kbd>SPACE</kbd> <kbd>↑</kbd> JUMP <small>HOLD FOR HIGH JUMP</small></div>
+                <div><kbd>↓</kbd> DUCK <small>FAST FALL IN AIR</small></div>
+              </div>
+              <p class="bonus-legend"><span>● TOKEN +25</span><span>1UP AT 1,000</span></p>
+              <button id="start-button" class="primary" type="button">START</button>
+              <p class="panel-tip touch-tip">TOUCH: JUMP / DUCK BUTTONS</p>
+            </section>
+            <section id="pause-panel" class="game-panel" aria-labelledby="pause-title" hidden>
+              <h2 id="pause-title">PAUSED</h2>
+              <button id="resume-button" class="primary" type="button">CONTINUE</button>
+              <p class="panel-tip"><kbd>P</kbd> / <kbd>ESC</kbd> TO RESUME</p>
+            </section>
+            <section id="end-panel" class="game-panel end-panel" aria-labelledby="end-title" hidden>
+              <div class="end-summary">
+                <h2 id="end-title">GAME OVER</h2>
+                <p id="end-best" class="record-banner" hidden>NEW HIGH SCORE</p>
+                <p id="end-pun"></p>
+                <p class="score-label">SCORE</p>
+                <strong id="end-score" class="end-score">0</strong>
+                <p id="end-stats"></p>
+                <button id="replay-button" class="primary" type="button">PLAY AGAIN</button>
+                <p class="panel-tip"><kbd>SPACE</kbd> / <kbd>↑</kbd></p>
+                <details class="share-details">
+                  <summary>SHARE SCORE</summary>
+                  <div class="share-actions">
+                    <button id="copy-score" type="button">Copy score</button>
+                    <a id="share-twitter" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+                    <a id="share-facebook" target="_blank" rel="noopener noreferrer">Facebook</a>
+                  </div>
+                  <p id="share-message" role="status"></p>
+                </details>
+              </div>
+              <div class="end-leaderboard">
+                <form id="name-entry-form" hidden>
+                  <label for="name-input">ENTER INITIALS <small>OPTIONAL</small></label>
+                  <div class="name-entry">
+                    <input type="text" id="name-input" placeholder="ABC" maxlength="3" pattern="[A-Za-z]{1,3}" title="1–3 letters" autocomplete="off" autocapitalize="characters" spellcheck="false" required />
+                    <button type="submit">OK</button>
+                    <button id="skip-score" type="button">SKIP</button>
+                  </div>
+                </form>
+                <p id="name-message" role="status"></p>
+                <div id="leaderboard-container"></div>
+              </div>
+            </section>
+          </div>
+        </div>
+        <div class="touch-controls" aria-label="Touch controls">
+          <button id="duck-button" type="button">↓ DUCK <small>HOLD / FAST FALL</small></button>
+          <button id="jump-button" class="primary" type="button">↑ JUMP <small>HOLD / HIGH JUMP</small></button>
+        </div>
+        <p class="controls-help">Space / ↑: jump · ↓: duck / fast fall · P / Esc: pause · M: sound</p>
+      </section>
+      <footer>
+        <a href="https://laundr.io" target="_blank" rel="noopener noreferrer"><img src="sprites/LogoBlue.png" alt="Laundr" width="130" /></a>
+        <a href="credits.html">Game credits</a>
+      </footer>
+    </main>
   </body>
-  <footer style="text-align: center; padding: 20px; position: fixed; bottom: 0; left: 0; width: 100%;">
-    <img src="../sprites/LogoBlue.png" alt="Laundr Logo" style="width:160px; vertical-align: middle; z-index: -1;" href="https://laundr.io"/>
-    <p>&copy; Laundr Inc. 2025. All rights reserved.</p>
-  </footer>
 </html>

@@ -1,6 +1,6 @@
 # HamperMan Game
 
-The HamperMan game is a Laundr-themed version of Google Chrome’s dino game. It is available on desktop and mobile browsers. The game is built on the pixi-js framework, allowing for wide compatibility and solid performance.
+Hamperman is a Laundr-themed endless runner inspired by Google Chrome’s dino game. It is available on desktop and mobile browsers. The game is built on the pixi-js framework, allowing for wide compatibility and solid performance.
 
 ## Motivation
 
@@ -21,30 +21,19 @@ Game code was created using Javascript. Active deployments are created with [her
 
 ## Features
 
-![play game_8fps](https://user-images.githubusercontent.com/61722674/101677569-b84ca400-3a2a-11eb-8819-bab6c819581c.gif)
-<i>The start of the game, including game instructions and some gameplay.</i>
-
-- Instructions on game start
-- Jumping and ducking
-- Random obstacle spawning
-- Display high score and current score
-- Sound effects on player actions
-- Mute functionality
-- Auto pause when game tab loses focus
-- Score bonus tokens
-- Lose or win game
-- Restart functionality
-- Coupon code displayed on a win
-- Puns displayed on game over screens
-- Display credits on a win
-- Share high score to Twitter and Facebook
-- Compatible with mobile
-
-![end game NEW_8fps](https://user-images.githubusercontent.com/61722674/101677514-a9fe8800-3a2a-11eb-9326-64483a72034e.gif)
-<i>The end of the game when the player wins, including some gameplay, the win screen, and the credits.</i>
-
-![social media_8fps](https://user-images.githubusercontent.com/61722674/101677530-af5bd280-3a2a-11eb-9c56-f8a9d968f6b2.gif)
-<i>Social media sharing on a game over, including sharing to Twitter as well as to Facebook.</i>
+- Endless running, with uncapped scores and 30-second milestones
+- Variable-height jumps, ducking, fast falls, and a 150 ms jump input buffer
+- A predictable first obstacle and contextual hints for new actions
+- Denser obstacle groups and more double loads as levels rise, with safe minimum spacing
+- One extra life per run at 1,000 points; a hit consumes it and grants three seconds of flashing invulnerability
+- Tokens worth 25 points, placed along jump and duck paths throughout the run
+- Token pickup text, landing puffs, and personal-best celebrations
+- Immediate replay with optional score saving and remembered initials
+- A top-ten leaderboard and personal best stored on the current device
+- Responsive desktop and portrait layouts with large touch controls
+- Pause on loss of focus, tab switching, or a change in game aspect ratio; explicit resume
+- Persistent mute preference and score sharing through links or copied text
+- Locally bundled Pixi.js; no third-party social widgets needed to play
 
 ## Installation
 
@@ -77,73 +66,41 @@ In the main index.html page of the Laundr website, only 3 lines of code need to 
 To add the game itself, the following html will need to be added inside the <body> element.
 
 ```
-<div style='position: relative; overflow: hidden; padding-top: 25%;'>
-    <iframe src="index.html" title="404 - Game Found!" style='position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;' scrolling="no" frameborder="0"  onload="parent.resize(document.body.scrollHeight);"></iframe>
-</div>
+<iframe src="index.html" title="Hamperman endless runner"
+  style="width: 100%; min-height: 640px; border: 0;"></iframe>
 ```
 
 If you would like for the game to display in the same location as we have set it up in the gameDemo deployment, please open that branch. The Laundr 404 page has been downloaded and modified in our demo.htm file. Our code has been indicated with large comment blocks (stating “THIS IS OUR STUFF”); you may find the location of where to insert the above code by finding these comment blocks.
 
-There are also several elements of our game that can be edited easily, if there is a desire to change them before/after integration. These elements can be edited through three text files within the inputData folder:
+The game loads its artwork and sounds once. Gameplay advances through a fixed 144 Hz simulation in `js/simulation.js`, so physics, spawning, scoring, and difficulty share the same active clock. Difficulty caps at a playable speed, while runs, scores, tokens, and milestone numbers continue indefinitely.
 
-- lose_puns.txt: Contains all of the puns that will be shown on a lose screen, separated by a newline character
-- win_puns.txt: Contains all of the puns that will be shown on a win screen, separated by a newline character
-- couponcode.txt: Contains the coupon code that will show on a win screen
-
-To edit these files, open the relevant text file and edit the contents. Upon saving, the game will automatically include any changes that were made.
-
-It is possible that the y location of the puns on the end-game screens will differ once fully integrated into your site. To change this y location:
-
-- Within the js/windows.js file go to line 67, which should read: `this.pun.y = HEIGHT / 2.5;`
-- Making “2.5” bigger will move the pun up, making it smaller will move the pun down.
-
-## API Reference
-
-The [Tweet Button](https://developer.twitter.com/en/docs/twitter-for-websites/tweet-button/overview) from Twitter was used to allow players to share their score to Twitter.
-
-The [Share Button](https://developers.facebook.com/docs/plugins/share-button/) from Facebook was used to allow players to share their score to Facebook.
+Death-screen puns are read from `inputData/lose_puns.txt`, one per line. The former timed win, coupon screen, and finish sequence are no longer part of gameplay. Their existing artwork and text files remain available in the repository.
 
 ## Tests
 
-Unit tests were created using [Canvest](https://github.com/TyrealGray/Canvest) to allow for tests that interact with canvas elements. To run the tests, use the unitTests branch.
+Run the dependency-free regression suite:
 
-Ensure that the directory used has no spaces in it. For example, use C:/unitTests, not C:/unit Tests, as canvest will not automatically convert this directory to C:/”unit Tests” for you and will be unable to find your project.
-
-Run:
-
-```
-npm i @canvest/canvest-cli --save-dev
-```
-
-as well as:
-
-```
-npm install pixi.js
-```
-
-After all files have installed, run:
-
-```
+```sh
 npm test
 ```
 
-If you encounter permissions errors, try running powershell as an administrator.
+It checks frame-rate consistency, buffered jumps, held jumps and fast falls, collision handling, level-based density, safe difficulty bounds, jumpable obstacle groups on desktop and portrait, extra-life awards and invulnerability, a ten-minute endless run, cleanup and restart state, optional score entry, and storage failures.
 
-If canvest runs successfully, a browser tab will open with the results of the tests. It will take some time for all tests to be generated, as many tests require short timeOut statements that all add up to several long seconds of tests.
+For browser verification, run `PORT=8080 npm start` and open `http://localhost:8080`. Check keyboard and touch controls, orientation changes, pause/resume, mute, repeated replay, and score entry. The score leaderboard is local to each device, not a shared online ranking.
 
-To add additional tests, ensure that every test file is in the fileName.canvest.js format, and placed within the canvest folder in the project directory.
+## How to play
 
-Functional tests can all be conducted by opening the [main heroku deployment](http://laundr-game.herokuapp.com/) and playing the game.
+Press **Space** or **↑** to jump. Hold it to jump higher and farther. Press and hold **↓** to duck under high flying irons; pressing it in the air accelerates your fall. A brief jump press just before landing is buffered so it can take effect after you touch down. Each new press makes one jump.
 
-## How to play?
+On mobile, use the large **Jump** and **Duck** buttons. You can also tap the upper two-thirds of the game field to jump or the lower third to duck. Hold to maintain the action; the separate buttons support simultaneous touches.
 
-To play the game on desktop, press ‘space’ or ‘up’ to make the player character jump, and ‘down’ to make the player duck. To successfully duck under obstacles, ‘down’ will have to be pressed and held, as the player will exit the duck as soon as ‘down’ has been released. For longer air-time to help clear larger obstacles, press and hold the jump button. To accelerate the player’s fall from a jump, press the duck button while mid-jump. Use these controls to avoid the various obstacles, which include washing machines, hampers of dirty laundry, and flying clothes irons.
+Collect golden tokens for **25 points** each. Every 30 seconds marks another level, with shorter gaps between obstacle groups and more frequent double loads at higher levels. Spacing has a safe minimum so you still have room to jump and land.
 
-To pick up score bonus tokens, move the player character so it collides with the golden Laundr bomb sprites.
+Reach **1,000 points** to earn **one extra life per run**, including points from tokens. Your next collision consumes it and grants **three seconds of invulnerability**: Hamperman flashes gold while passing safely through obstacles. Jumping, ducking, scoring, and token collection continue normally. The life indicator shows whether the life is ready, used, or providing protection. After protection ends, the next collision ends your run. Restarting resets the life reward. With reduced motion enabled, protection uses a steady gold tint.
 
-If the player collides with an obstacle, they will die instantly. Restart the game by pressing the jump button or by clicking on the blue restart button on the screen. If the player is able to avoid all obstacles for a continuous five minutes, they will win the game.
+Press **P** or **Escape** to pause or resume, and **M** to toggle sound. Switching away from the game pauses it until you explicitly resume; this also freezes the invulnerability timer.
 
-To play the game on mobile, tap the space above the road to jump, and tap the space below the road to duck. Press and hold to simulate holding down a key.
+After a collision, press **Space** or **↑**, or choose **Play again**, to restart immediately. Saving a score is optional: enter one to three letters, select **Save**, or choose **Skip**. Initials are remembered on the device. The personal best is saved even when you skip leaderboard entry.
 
 ## Credits
 

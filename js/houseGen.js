@@ -1,90 +1,48 @@
-export default class Spawner {
-    constructor(app) {
-        this.app = app;
-        this.spawn();
+import { worldSpeed } from './simulation.js';
 
-        this.houses = [];
+export default class HouseGen {
+  constructor(app, world, random = Math.random) {
+    Object.assign(this, { app, world, random });
+    this.houses = [];
+    this.wait = 1;
+    this.build(world.width * 0.65);
+  }
 
-        this.intRangeMax = 4000;
-        this.intRangeMin = 1000;
+  build(x = this.world.width + 20) {
+    const name = `backgroundHouse${Math.floor(this.random() * 4)}.png`;
+    const house = new PIXI.Sprite(this.app.loader.resources.houseSheet.spritesheet.textures[name]);
+    house.anchor.set(0, 1);
+    house.scale.set(1.9);
+    house.position.set(x, this.world.height * 0.792);
+    house.zIndex = 0;
+    this.world.container.addChild(house);
+    this.houses.push(house);
+  }
 
-        this.gameOver = false;
-        this.focus = true;
-
-        //Spawn one house on screen 
-        this.buildHouse(this.chooseSprite());
-        this.houses[0].x = Math.random() * 4 * WIDTH / 5;
+  update(dt, seconds) {
+    for (let i = this.houses.length - 1; i >= 0; i--) {
+      const house = this.houses[i];
+      house.x -= worldSpeed(this.world.width, seconds) * 0.38 * dt;
+      if (house.x + house.width < 0) {
+        this.world.container.removeChild(house);
+        this.houses.splice(i, 1);
+        house.destroy();
+      }
     }
-
-    buildHouse(spriteName) {
-        let texture = this.app.loader.resources.houseSheet.spritesheet.textures[spriteName];
-
-        if (texture != undefined) {
-            let house = new PIXI.Sprite(this.app.loader.resources.houseSheet.spritesheet.textures[spriteName]);
-            house.anchor.set(0, 1);
-            house.x = WIDTH;
-            house.y = 3.96 * HEIGHT / 5;
-            house.scale.set(1.9 * SCALE);
-            house.zIndex = 0;
-            
-            container.addChild(house);
-            this.houses.push(house);
-        }
+    this.wait -= dt;
+    if (this.wait <= 0) {
+      if (!this.houses.length || this.houses[this.houses.length - 1].x < this.world.width * 0.75) this.build();
+      this.wait = 1.5 + this.random() * 2.5;
     }
+  }
 
-    moveSprites() {
-        for (var i = 0; i < this.houses.length; i++) {
-            const xBox = this.houses[i].getBounds().x + this.houses[i].getBounds().width;
-            this.houses[i].x -= SCALE * 1.33 * speedScale * FPSSCALE;
+  resize(ratio) { for (const house of this.houses) house.x *= ratio; }
 
-            if (xBox <= 0) {
-                container.removeChild(this.houses[i]);
-                this.houses.splice(i, 1);
-                i--;
-            }
-        }
+  destroy() {
+    for (const house of this.houses) {
+      this.world.container.removeChild(house);
+      house.destroy();
     }
-
-    randomizeInterval() {
-        return (Math.floor(Math.random() * (this.intRangeMax - this.intRangeMin + 1)) + this.intRangeMin);
-    }
-
-    spawn() {
-        if (!this.gameOver) {
-            if (this.focus && (this.houses.length == 0 || this.houses[this.houses.length - 1].x < WIDTH * 3 / 4) && (performance.now() - window.timeOffset) < window.winTime - 2200) {
-                this.buildHouse(this.chooseSprite());
-            }
-
-            //call the next spawn obstacle, with a delay of interval
-            this.timeout = setTimeout(this.spawn.bind(this), this.randomizeInterval());
-        }
-    }
-
-    chooseSprite() {
-        let rand = Math.floor(Math.random() * 4);
-        if (rand == 0) {
-            return "backgroundHouse0.png"
-        } else if (rand == 1) {
-            return "backgroundHouse1.png";
-        } else if (rand == 2) {
-            return "backgroundHouse2.png";
-        }
-        else {
-            return "backgroundHouse3.png";
-        }
-    }
-
-    loseFocus() {
-        if (this.focus) {
-            this.focus = false;
-            clearTimeout(this.timeout);
-        }
-    }
-
-    gainFocus() {
-        if (!this.focus) {
-            this.focus = true;
-            this.timeout = setTimeout(this.spawn.bind(this), this.randomizeInterval());
-        }
-    }
+    this.houses = [];
+  }
 }
