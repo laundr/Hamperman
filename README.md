@@ -59,6 +59,28 @@ npm start
 
 ## Integration
 
+### Vercel deployment
+
+The project uses Node.js 24 for builds and deploys as a static site. Import this
+repository into Vercel with the **Other** framework preset. The checked-in
+`vercel.json` sets the build command to `npm run build` and the output directory
+to `dist`. No running Node server is needed in production.
+
+To verify the build locally after installing dependencies:
+
+```sh
+npm run build
+```
+
+The build copies the public game files and the Pixi sound library into `dist`,
+so the deployed page does not depend on serving `node_modules`.
+
+The main website can rewrite `/hamperman/:path*` to this project's stable
+production URL, keeping both repositories independently deployable. Preserve
+the trailing slash on `/hamperman/` so relative game assets resolve within that
+directory. If the website enforces URLs without trailing slashes, configure a
+base URL for the game instead before integrating it.
+
 To integrate the game into the Laundr website, add all files from our project into your directory, ensuring that pathways remain intact. For example, if you must move the .js files from the js folder, ensure all import statements at the top of game.js are updated to remain accurate.
 
 In the main index.html page of the Laundr website, only 3 lines of code need to be added.
