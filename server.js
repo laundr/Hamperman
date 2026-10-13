@@ -11,7 +11,9 @@ console.log("Started server on port " + port);
 
 http.createServer(function (req, res) {
   let url = req.url;
-  if(req.url == "/"){
+  // Match the production asset prefix when serving the game locally.
+  url = url.replace(/^\/hamperman(?=\/|\?|$)/, '');
+  if(url == "" || url == "/"){
     url = "/index.html";
   }
   fs.readFile(__dirname + url, function (err,data) {

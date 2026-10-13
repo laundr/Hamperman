@@ -76,10 +76,12 @@ The build copies the public game files and the Pixi sound library into `dist`,
 so the deployed page does not depend on serving `node_modules`.
 
 The main website can rewrite `/hamperman/:path*` to this project's stable
-production URL, keeping both repositories independently deployable. Preserve
-the trailing slash on `/hamperman/` so relative game assets resolve within that
-directory. If the website enforces URLs without trailing slashes, configure a
-base URL for the game instead before integrating it.
+production URL, keeping both repositories independently deployable. The game's
+HTML uses `/hamperman/` as its asset base, so `/hamperman` works without a trailing
+slash. Hamperman's own Vercel configuration also maps `/hamperman/:path*` to its
+root files, preserving direct access at the game domain. The local development
+server accepts the same prefix. No slash redirect or rewrites for top-level
+asset folders are needed on the main website.
 
 To integrate the game into the Laundr website, add all files from our project into your directory, ensuring that pathways remain intact. For example, if you must move the .js files from the js folder, ensure all import statements at the top of game.js are updated to remain accurate.
 
