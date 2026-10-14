@@ -602,5 +602,32 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
     assert.match(html, /property="og:url" content="https:\/\/laundr\.io\/hamperman\/score\/12345"/);
     assert.match(html, /property="og:image:width" content="1200"/);
   });
+  test('Gameplay changes invalidate the entry script and every imported module URL', () => {
+    const versionModules = require('../scripts/version-modules.cjs');
+    const temp = fs.mkdtempSync(path.join(require('os').tmpdir(), 'hamperman-modules-'));
+    const sourceRoot = path.join(temp, 'source'), output = path.join(temp, 'output');
+    fs.mkdirSync(path.join(output, 'js'), { recursive: true });
+    fs.cpSync(path.resolve(__dirname, '..', 'js'), path.join(sourceRoot, 'js'), { recursive: true });
+    try {
+      const entry = versionModules(sourceRoot, output);
+      assert.match(entry, /^js\/game\.[a-f0-9]{12}\.js$/);
+      assert.equal(versionModules(sourceRoot, output), entry, 'Unchanged builds use stable URLs');
+      const importedSimulation = new Set();
+      for (const file of fs.readdirSync(path.join(output, 'js'))) {
+        const source = fs.readFileSync(path.join(output, 'js', file), 'utf8');
+        for (const [, relative] of source.matchAll(/\bfrom\s+['"](\.\/[^'"]+)['"]/g)) {
+          assert.match(relative, /\.[a-f0-9]{12}\.js$/);
+          assert.ok(fs.existsSync(path.resolve(output, 'js', relative)), 'All versioned imports resolve');
+          if (relative.startsWith('./simulation.')) importedSimulation.add(relative);
+        }
+      }
+      assert.equal(importedSimulation.size, 1, 'Every module shares one simulation instance');
+      const previousSimulation = [...importedSimulation][0];
+      fs.appendFileSync(path.join(sourceRoot, 'js', 'simulation.js'), '\n// Gameplay update\n');
+      const updatedEntry = versionModules(sourceRoot, output);
+      assert.notEqual(updatedEntry, entry, 'A dependency change invalidates the entry URL');
+      assert.ok(!fs.readFileSync(path.join(output, updatedEntry), 'utf8').includes(previousSimulation));
+    } finally { fs.rmSync(temp, { recursive: true, force: true }); }
+  });
   console.log(`\n${passed} tests passed.`);
 })().catch(error => { console.error(error); process.exitCode = 1; });

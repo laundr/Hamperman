@@ -73,7 +73,9 @@ npm run build
 ```
 
 The build copies the public game files and the Pixi sound library into `dist`,
-so the deployed page does not depend on serving `node_modules`.
+so the deployed page does not depend on serving `node_modules`. Game modules use
+content-versioned filenames, including their imports, so a page reload picks up
+gameplay updates even when the main website caches JavaScript for several hours.
 
 The main website can rewrite `/hamperman/:path*` to this project's stable
 production URL, keeping both repositories independently deployable. The game's

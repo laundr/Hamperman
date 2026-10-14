@@ -1,5 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
+const versionModules = require('./version-modules.cjs');
 
 const root = path.resolve(__dirname, '..');
 const output = path.join(root, 'dist');
@@ -17,6 +18,9 @@ for (const entry of ['credits.html', 'js', 'styles', 'sprites', 'sounds', 'fonts
 fs.mkdirSync(path.join(output, 'vendor'), { recursive: true });
 fs.writeFileSync(path.join(output, 'vendor/pixi-sound.js'), sound);
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-fs.writeFileSync(path.join(output, 'index.html'), html.replace(soundPath, 'vendor/pixi-sound.js'));
+const gamePath = versionModules(root, output);
+fs.writeFileSync(path.join(output, 'index.html'), html
+  .replace(soundPath, 'vendor/pixi-sound.js')
+  .replace('src="js/game.js"', `src="${gamePath}"`));
 
 console.log('Static game built in dist/');
