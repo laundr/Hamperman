@@ -24,7 +24,7 @@ Game code was created using Javascript. Active deployments are created with [her
 - Endless running, with uncapped scores and 30-second milestones
 - Variable-height jumps, ducking, fast falls, and a 150 ms jump input buffer
 - A predictable first obstacle and contextual hints for new actions
-- Denser obstacle groups and more double loads as levels rise, with safe minimum spacing
+- 14% faster movement each level up to 2.6× starting speed, with denser obstacle groups and more double loads
 - One extra life every 1,000 points; unused lives stack, and a hit consumes one and grants three seconds of flashing invulnerability
 - Tokens worth 25 points, placed along jump and duck paths throughout the run
 - Token pickup text, landing puffs, and personal-best celebrations
@@ -118,7 +118,7 @@ Press **Space** or **↑** to jump. Hold it to jump higher and farther. Press an
 
 On mobile, use the large **Jump** and **Duck** buttons. You can also tap the upper two-thirds of the game field to jump or the lower third to duck. Hold to maintain the action; the separate buttons support simultaneous touches.
 
-Collect golden tokens for **25 points** each. Every 30 seconds marks another level, with shorter gaps between obstacle groups and more frequent double loads at higher levels. Spacing has a safe minimum so you still have room to jump and land.
+Collect golden tokens for **25 points** each. Every 30 seconds marks another level and increases movement speed by **14%**, up to **2.6×** starting speed at level 9. Obstacle groups start closer together, gaps shrink by 18% per level until their minimum, and double loads become more frequent. Spacing always leaves room for a held jump and landing before the next group.
 
 Earn **one extra life every 1,000 points**, including points from tokens. Unused lives stack: reaching 2,000 points without using the first life gives you two. Each collision consumes one saved life and grants **three seconds of invulnerability**: Hamperman flashes gold while passing safely through obstacles. Jumping, ducking, scoring, and token collection continue normally. The life indicator shows your saved lives and protection time, or the next reward threshold when no lives remain. After protection ends, another collision consumes the next saved life or ends your run if none remain. Restarting resets your lives and reward thresholds. With reduced motion enabled, protection uses a steady gold tint.
 

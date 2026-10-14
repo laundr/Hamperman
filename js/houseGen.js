@@ -1,4 +1,4 @@
-import { worldSpeed } from './simulation.js';
+import { difficultyAt, worldSpeed } from './simulation.js';
 
 export default class HouseGen {
   constructor(app, world, random = Math.random) {
@@ -32,7 +32,8 @@ export default class HouseGen {
     this.wait -= dt;
     if (this.wait <= 0) {
       if (!this.houses.length || this.houses[this.houses.length - 1].x < this.world.width * 0.75) this.build();
-      this.wait = 1.5 + this.random() * 2.5;
+      // Keep the neighborhood populated as the world scrolls faster.
+      this.wait = (1.5 + this.random() * 2.5) / difficultyAt(seconds).speed;
     }
   }
 

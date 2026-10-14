@@ -12,11 +12,12 @@ export function overlaps(a, b) {
 }
 
 export function difficultyAt(seconds) {
-  const speed = Math.min(1.3, 1 + Math.floor(seconds / 20) * 0.02);
   const completedLevels = Math.floor(seconds / 30);
-  const minGap = Math.max(0.85, 2.1 * Math.pow(0.9, completedLevels));
-  const maxGap = Math.max(minGap + 0.3, 3 * Math.pow(0.9, completedLevels));
-  const doubleChance = Math.min(0.6, 0.25 + completedLevels * 0.025);
+  // Each level is noticeably faster; keep a ceiling for portrait reaction time.
+  const speed = Math.min(2.6, Math.pow(1.14, completedLevels));
+  const minGap = Math.max(0.9, 1.7 * Math.pow(0.82, completedLevels));
+  const maxGap = Math.max(minGap + 0.25, 2.4 * Math.pow(0.82, completedLevels));
+  const doubleChance = Math.min(0.7, 0.35 + completedLevels * 0.065);
   return { speed, minGap, maxGap, doubleChance };
 }
 

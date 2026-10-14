@@ -120,8 +120,8 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
     assert.ok(sim.difficultyAt(60).minGap < sim.difficultyAt(0).minGap);
     for (const seconds of [0, 3, 20, 60, 300, 600, 36000]) {
       const d = sim.difficultyAt(seconds);
-      assert.ok(d.speed >= 1 && d.speed <= 1.3);
-      assert.ok(d.minGap >= 0.85 && d.maxGap > d.minGap);
+      assert.ok(d.speed >= 1 && d.speed <= 2.6);
+      assert.ok(d.minGap >= 0.9 && d.maxGap > d.minGap);
       for (const width of [427.5, 900]) {
         const speed = sim.worldSpeed(width, seconds);
         assert.ok(sim.nextGap(seconds, 110, speed, () => 0) >= 110 / speed + 0.9);
@@ -131,14 +131,32 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
     assert.ok(sim.SCORE_RATE * 600 > 999);
   });
 
+  test('Speed increases significantly at each level until its portrait-safe ceiling', () => {
+    assert.equal(sim.difficultyAt(0).speed, 1);
+    for (let level = 1; level <= 8; level++) {
+      const boundary = level * 30;
+      const earlier = sim.difficultyAt(boundary - sim.STEP).speed;
+      const later = sim.difficultyAt(boundary).speed;
+      assert.ok(later > earlier);
+      assert.ok(later >= Math.min(2.6, earlier * 1.14) - 1e-9);
+      assert.equal(sim.difficultyAt(boundary + 15).speed, later);
+    }
+    assert.ok(sim.difficultyAt(60).speed >= 1.29);
+    assert.ok(sim.difficultyAt(120).speed >= 1.68);
+    assert.equal(sim.difficultyAt(240).speed, 2.6);
+    assert.equal(sim.difficultyAt(36000).speed, 2.6);
+  });
+
   test('Each higher level increases density until the safe minimum is reached', () => {
-    for (let level = 1; level < 10; level++) {
+    for (let level = 1; level <= 8; level++) {
       const earlier = sim.difficultyAt((level - 1) * 30);
       const later = sim.difficultyAt(level * 30);
-      assert.ok(later.minGap < earlier.minGap);
-      assert.ok(later.maxGap < earlier.maxGap);
-      assert.ok(later.doubleChance > earlier.doubleChance);
+      assert.ok(later.minGap <= earlier.minGap);
+      assert.ok(later.maxGap <= earlier.maxGap);
+      assert.ok(later.doubleChance >= earlier.doubleChance);
     }
+    assert.ok(sim.difficultyAt(60).maxGap < sim.difficultyAt(0).minGap);
+    assert.ok(sim.difficultyAt(120).doubleChance > 0.6);
     function countObjects(startTime) {
       const world = fakeWorld();
       const spawner = new Spawner(fakeApp(), world, { bounds: { x: -10000, y: 0, width: 1, height: 1 } }, () => {}, () => {}, () => {}, () => 0.55);
@@ -149,6 +167,7 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
       spawner.destroy();
       return count;
     }
+    assert.ok(countObjects(60) > countObjects(0) * 2, 'One minute should reach a dense obstacle stream');
     assert.ok(countObjects(300) > countObjects(0) * 2, 'Higher levels should spawn substantially more objects');
   });
 
@@ -262,7 +281,7 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
   });
 
   test('All ground groups have a clearable held jump on desktop and portrait', () => {
-    for (const width of [427.5, 900]) for (const seconds of [0, 35, 300, 36000]) {
+    for (const width of [427.5, 900]) for (const seconds of [0, 30, 60, 90, 120, 180, 240, 300, 36000]) {
       const speed = sim.worldSpeed(width, seconds);
       for (const double of [false, true]) {
         let possible = false;
@@ -281,6 +300,34 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
           possible = !hit;
         }
         assert.ok(possible, `No timing window: width ${width}, seconds ${seconds}, double ${double}`);
+      }
+    }
+  });
+
+  test('Minimum gaps allow consecutive ground groups, including level speed changes', () => {
+    for (const width of [427.5, 900]) for (const boundary of [30, 60, 90, 120, 180, 240, 300]) {
+      for (const startTime of [boundary, boundary - 0.15]) for (const firstDouble of [false, true]) {
+        const gap = sim.nextGap(startTime, firstDouble ? 110 : 55, sim.worldSpeed(width, startTime), () => 0);
+        let safeWindows = 0;
+        for (let delay = 0; delay < 1; delay += sim.STEP) {
+          const body = { y: 202.5, ground: 202.5, velocity: 0, buffer: 0 };
+          let firstX = 230, secondX = 230, jumped = false, jumpedAgain = false, hit = false;
+          for (let t = 0; t < gap + 2 && !hit; t += sim.STEP) {
+            if (!jumped && t >= delay) { body.buffer = sim.JUMP_BUFFER; jumped = true; }
+            if (!jumpedAgain && t >= gap + delay) { body.buffer = sim.JUMP_BUFFER; jumpedAgain = true; }
+            sim.advanceJump(body, { jump: true, duck: false }, sim.STEP);
+            const movement = sim.worldSpeed(width, startTime + t) * sim.STEP;
+            firstX -= movement;
+            if (t >= gap) secondX -= movement;
+            const playerBounds = { x: -69, y: body.y - 60, width: 63, height: 57 };
+            const collides = (x, double) => sim.overlaps(playerBounds,
+              { x: x - 22.5, y: 142.5, width: 45, height: 58 }) || (double && sim.overlaps(playerBounds,
+              { x: x + 55 - 21.5, y: 164.5, width: 43, height: 36 }));
+            hit = collides(firstX, firstDouble) || (t >= gap && collides(secondX, true));
+          }
+          safeWindows += Number(!hit);
+        }
+        assert.ok(safeWindows >= 6, `Consecutive groups need a usable timing window: width ${width}, time ${startTime}, double ${firstDouble}`);
       }
     }
   });
