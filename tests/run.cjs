@@ -522,8 +522,10 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
     get('pause-button').onclick();
     assert.equal(get('pause-panel').hidden, false);
     const before = get('milestone-progress').value;
+    const scoreBefore = get('score-value').textContent;
     for (let i = 0; i < 120; i++) gameApp.ticker.tick();
     assert.equal(get('milestone-progress').value, before, 'Run clock advances while paused');
+    assert.equal(get('score-value').textContent, scoreBefore, 'Score must freeze while paused');
     get('resume-button').onclick();
     assert.equal(get('game-overlay').hidden, true);
     // Let the first obstacle collide, then restart without saving initials.
@@ -547,7 +549,11 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
     Object.defineProperty(Player.prototype, 'bounds', { configurable: true, get: () => ({ x: -10000, y: 0, width: 1, height: 1 }) });
     for (let i = 0; i < 60 * 600; i++) gameApp.ticker.tick();
     assert.equal(document.getElementById('game-overlay').hidden, true);
-    assert.ok(Number(document.getElementById('score-value').textContent.replace(/,/g, '')) > 999);
+    // Independently total each 30-second level; viewport size must not affect rewards.
+    const expectedScore = Array.from({ length: 20 }, (_, level) => 30 * sim.SCORE_RATE * Math.min(2.6, Math.pow(1.14, level)))
+      .reduce((sum, points) => sum + points, 0);
+    const displayedScore = Number(document.getElementById('score-value').textContent.replace(/,/g, ''));
+    assert.ok(Math.abs(displayedScore - expectedScore) < 1, 'Time-based score must scale with movement speed');
     assert.equal(document.getElementById('milestone-label').textContent, 'LEVEL 21');
     Object.defineProperty(Player.prototype, 'bounds', original);
   });
@@ -556,7 +562,9 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
     const original = Object.getOwnPropertyDescriptor(Player.prototype, 'bounds');
     Object.defineProperty(Player.prototype, 'bounds', { configurable: true, get: () => ({ x: -10000, y: 0, width: 1, height: 1 }) });
     try {
-      for (let i = 0; i < 60 * 400 && Number(get('score-value').textContent.replace(/,/g, '')) < 2000; i++) gameApp.ticker.tick();
+      get('replay-button').onclick();
+      assert.equal(get('score-value').textContent, '0');
+      for (let i = 0; i < 60 * 600 && Number(get('score-value').textContent.replace(/,/g, '')) < 2000; i++) gameApp.ticker.tick();
       assert.equal(get('score-value').textContent, '2,000');
       assert.equal(get('life-value').textContent, '2');
       assert.equal(get('life-status').textContent, 'Ready');
@@ -570,7 +578,8 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
     const original = Object.getOwnPropertyDescriptor(Player.prototype, 'bounds');
     Object.defineProperty(Player.prototype, 'bounds', { configurable: true, get: () => ({ x: -10000, y: -10000, width: 20000, height: 20000 }) });
     try {
-      gameApp.ticker.tick();
+      // The score threshold can fall between groups; wait for an actual obstacle.
+      for (let i = 0; i < 60 * 3 && get('life-value').textContent === '2'; i++) gameApp.ticker.tick();
       assert.equal(get('game-overlay').hidden, true);
       assert.equal(get('life-value').textContent, '1');
       assert.equal(get('life-status').textContent, 'Safe · 3s');

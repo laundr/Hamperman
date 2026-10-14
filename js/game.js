@@ -4,7 +4,7 @@ import Player from './player.js';
 import Windows from './windows.js';
 import Socials from './socials.js';
 import Leaderboard, { readStored, writeStored } from './leaderboard.js';
-import { FixedClock, RunLife, milestoneAt, SCORE_RATE, TOKEN_POINTS, worldSpeed } from './simulation.js';
+import { difficultyAt, FixedClock, RunLife, milestoneAt, SCORE_RATE, TOKEN_POINTS, worldSpeed } from './simulation.js';
 
 const canvas = document.getElementById('pixiCanvas');
 const scene = document.getElementById('laundr-game');
@@ -359,7 +359,7 @@ function clearEffects() {
 function step(dt) {
   if (state !== 'running') return false;
   runTime += dt;
-  score += SCORE_RATE * dt;
+  score += SCORE_RATE * difficultyAt(runTime).speed * dt;
   runLife.update(dt);
   const awardedLife = awardExtraLife();
   player.update(dt, input);

@@ -25,6 +25,7 @@ Game code was created using Javascript. Active deployments are created with [her
 - Variable-height jumps, ducking, fast falls, and a 150 ms jump input buffer
 - A predictable first obstacle and contextual hints for new actions
 - 14% faster movement each level up to 2.6× starting speed, with denser obstacle groups and more double loads
+- Time-based score increases with the speed multiplier, from 2.08 to 5.408 points per second
 - One extra life every 1,000 points; unused lives stack, and a hit consumes one and grants three seconds of flashing invulnerability
 - Tokens worth 25 points, placed along jump and duck paths throughout the run
 - Token pickup text, landing puffs, and personal-best celebrations
