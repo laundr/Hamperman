@@ -82,15 +82,16 @@ export default class Spawner {
     if (seconds >= 20 && !this.introducedIron) { iron = true; double = false; }
     if (seconds >= 35 && !this.introducedDouble) { double = true; iron = false; }
     if (formation) {
-      if (!this.introducedFormation) this.onHint('Flying V! Hold ↓ or Duck until all seven irons pass.');
+      if (!this.introducedFormation) this.onHint('Flying V! Hold ↓ or Duck until all three irons pass.');
       this.introducedFormation = true;
       this.lastFormation = this.groups;
-      // Connected wings rise beyond the highest jump; the low center clears a duck.
-      for (let i = 0; i < 7; i++) {
-        this.obstacle('ironSprite', x + i * 44, this.world.ground - (48 + Math.abs(i - 3) * 24));
-      }
-      groupWidth = 6 * 44 + 64;
-      if (this.groups % 3 === 0) this.token(x + 3 * 44, this.world.ground - 22);
+      // Lead leftward with two trailing wings, like a flock. The upper wing blocks
+      // jumping; the lower wing leaves a ducking lane and no gap tall enough to jump through.
+      this.obstacle('ironSprite', x, this.world.ground - 84);
+      this.obstacle('ironSprite', x + 44, this.world.ground - 120);
+      this.obstacle('ironSprite', x + 44, this.world.ground - 48);
+      groupWidth = 44 + 64;
+      if (this.groups % 3 === 0) this.token(x + 44, this.world.ground - 22);
     } else if (iron) {
       const high = !this.introducedIron || this.random() < 0.65;
       if (!this.introducedIron) this.onHint('Flying iron ahead! Hold ↓ or Duck to pass underneath.');

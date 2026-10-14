@@ -25,7 +25,7 @@ Game code was created using Javascript. Active deployments are created with [her
 - Variable-height jumps, ducking, fast falls, and a 150 ms jump input buffer
 - A predictable first obstacle and contextual hints for new actions
 - 14% faster movement each level up to 2.6× starting speed, with denser obstacle groups and more double loads
-- Random gaps between groups and within double loads, plus occasional flying V formations of seven irons that require ducking
+- Random gaps between groups and within double loads, plus occasional three-iron flying V formations that require ducking
 - Time-based score increases with the speed multiplier, from 2.08 to 5.408 points per second
 - One extra life every 1,000 points; unused lives stack, and a hit consumes one and grants three seconds of flashing invulnerability
 - Tokens worth 25 points, placed along jump and duck paths throughout the run
@@ -118,7 +118,7 @@ For browser verification, run `PORT=8080 npm start` and open `http://localhost:8
 
 ## How to play
 
-Press **Space** or **↑** to jump. Hold it to jump higher and farther. Press and hold **↓** to duck under high flying irons; pressing it in the air accelerates your fall. After 45 seconds, occasional **flying V formations of seven irons** require you to stay ducked until the whole formation passes: their wings are too high to jump over. A brief jump press just before landing is buffered so it can take effect after you touch down. Each new press makes one jump.
+Press **Space** or **↑** to jump. Hold it to jump higher and farther. Press and hold **↓** to duck under high flying irons; pressing it in the air accelerates your fall. After 45 seconds, occasional **three-iron flying V formations** appear: one leading iron and two trailing wings, like a flock of ducks. Stay ducked until all three pass; the upper wing is too high to jump over, and you cannot fit between the trailing irons. A brief jump press just before landing is buffered so it can take effect after you touch down. Each new press makes one jump.
 
 On mobile, use the large **Jump** and **Duck** buttons. You can also tap the upper two-thirds of the game field to jump or the lower third to duck. Hold to maintain the action; the separate buttons support simultaneous touches.
 

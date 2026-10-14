@@ -174,7 +174,7 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
   test('Random gaps stay varied above the safety floor, even at top speed', () => {
     for (const width of [427.5, 900]) for (const seconds of [0, 60, 240, 36000]) {
       const speed = sim.worldSpeed(width, seconds);
-      for (const groupWidth of [55, 130, 328]) {
+      for (const groupWidth of [55, 130, 108]) {
         const gaps = [0, 0.25, 0.5, 0.75, 0.999].map(roll => sim.nextGap(seconds, groupWidth, speed, () => roll));
         assert.equal(new Set(gaps).size, gaps.length, 'Random rolls must not collapse to one spacing');
         assert.ok(gaps[4] - gaps[0] > 0.79, 'Late levels still need substantial timing variation');
@@ -404,10 +404,14 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
     assert.equal(spawner.obstacles.length, 1, 'Formations do not appear before 45 seconds');
     spawner.destroy();
     spawner.spawn(45);
-    assert.equal(spawner.obstacles.length, 7);
+    assert.equal(spawner.obstacles.length, 3);
+    const [lead, upper, lower] = spawner.obstacles.map(item => item.sprite);
+    assert.ok(lead.x < upper.x, 'The leader is ahead in the direction of flight');
+    assert.equal(upper.x, lower.x, 'Two wings trail the leader');
+    assert.ok(upper.y < lead.y && lead.y < lower.y, 'Trailing wings sit above and below the leader');
     assert.equal(new Set(spawner.obstacles.map(item => item.height)).size, 1);
     assert.ok(hints.at(-1).includes('Flying V'));
-    assert.ok(spawner.wait >= 328 / sim.worldSpeed(world.width, 45) + 0.9);
+    assert.ok(spawner.wait >= 108 / sim.worldSpeed(world.width, 45) + 0.9);
     assert.equal(spawner.tokens.length, 1);
     assert.equal(spawner.tokens[0].sprite.y, world.ground - 22, 'Formation tokens stay on the duck path');
     spawner.destroy();
@@ -417,7 +421,7 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
       spawner.destroy();
     }
     spawner.spawn(60);
-    assert.equal(spawner.obstacles.length, 7);
+    assert.equal(spawner.obstacles.length, 3);
     assert.equal(hints.filter(hint => hint.includes('Flying V')).length, 1);
     spawner.destroy();
     assert.equal(world.children.size, 0);
@@ -431,7 +435,7 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
       spawner.introducedIron = spawner.introducedDouble = true;
       spawner.spawn(seconds);
       const speed = sim.worldSpeed(width, seconds);
-      const duration = (width + 55 + 264 + 32 - (player.x - 69)) / speed + sim.STEP;
+      const duration = (width + 55 + 44 + 32 - (player.x - 69)) / speed + sim.STEP;
       const hits = (t, bounds) => spawner.obstacles.some(item => sim.overlaps(bounds,
         { ...spawner.bounds(item), x: spawner.bounds(item).x - speed * t }));
       player.update(sim.STEP, { jump: false, duck: true });
@@ -468,7 +472,7 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
           return bounds;
         };
         const first = buildGroup(firstFormation), second = buildGroup(!firstFormation);
-        const gap = sim.nextGap(seconds, firstFormation ? 328 : 130, sim.worldSpeed(width, seconds), () => 0);
+        const gap = sim.nextGap(seconds, firstFormation ? 108 : 130, sim.worldSpeed(width, seconds), () => 0);
         let safeWindows = 0;
         for (let delay = 0; delay < 1; delay += sim.STEP) {
           player.reset();
