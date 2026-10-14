@@ -28,8 +28,8 @@ export async function GET(request) {
       text('CAN YOU BEAT IT?', { fontSize: 24, color: '#ffd45a', marginTop: 28, textShadow: SHADOW }));
   } else {
     middle = el('div', { flexDirection: 'column' },
-      text('AN ENDLESS', { fontSize: 36, color: '#fff', textShadow: SHADOW }),
-      text('LAUNDRY RUN', { fontSize: 36, color: '#ffd45a', marginTop: 16, textShadow: SHADOW }),
+      text('NO SOCK', { fontSize: 36, color: '#fff', textShadow: SHADOW }),
+      text('LEFT BEHIND', { fontSize: 36, color: '#ffd45a', marginTop: 16, textShadow: SHADOW }),
       text('JUMP / DUCK / GRAB TOKENS', { fontSize: 16, color: '#a7b5cf', marginTop: 28 }));
   }
 

@@ -10,7 +10,7 @@ export function shareMeta(html, score) {
   const tags = {
     'og:url': `${SITE}/score/${score}`,
     'og:title': `I scored ${points} in Hamperman!`,
-    'og:description': "Can you beat it? Play Laundr's endless laundry run.",
+    'og:description': 'Can you beat it? No sock left behind. Play Hamperman free from Laundr.',
     'og:image': `${IMAGE}?score=${score}`,
     'og:image:alt': `Hamperman high score: ${points}`,
   };
