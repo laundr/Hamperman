@@ -34,14 +34,16 @@ export function nextGap(seconds, groupWidth, speed, random = Math.random) {
 export class RunLife {
   constructor() { this.reset(); }
   reset() {
-    this.earned = false;
-    this.extraLife = false;
+    this.awardedLives = 0;
+    this.lives = 0;
     this.invulnerability = 0;
   }
+  get nextLifeScore() { return (this.awardedLives + 1) * EXTRA_LIFE_SCORE; }
   award(score) {
-    if (this.earned || score < EXTRA_LIFE_SCORE) return false;
-    this.earned = true;
-    this.extraLife = true;
+    const earned = Math.floor(score / EXTRA_LIFE_SCORE);
+    if (earned <= this.awardedLives) return false;
+    this.lives += earned - this.awardedLives;
+    this.awardedLives = earned;
     return true;
   }
   update(dt) {
@@ -50,8 +52,8 @@ export class RunLife {
   }
   hit() {
     if (this.invulnerability > 0) return 'protected';
-    if (!this.extraLife) return 'dead';
-    this.extraLife = false;
+    if (this.lives === 0) return 'dead';
+    this.lives--;
     this.invulnerability = INVULNERABILITY_SECONDS;
     return 'saved';
   }

@@ -25,7 +25,7 @@ Game code was created using Javascript. Active deployments are created with [her
 - Variable-height jumps, ducking, fast falls, and a 150 ms jump input buffer
 - A predictable first obstacle and contextual hints for new actions
 - Denser obstacle groups and more double loads as levels rise, with safe minimum spacing
-- One extra life per run at 1,000 points; a hit consumes it and grants three seconds of flashing invulnerability
+- One extra life every 1,000 points; unused lives stack, and a hit consumes one and grants three seconds of flashing invulnerability
 - Tokens worth 25 points, placed along jump and duck paths throughout the run
 - Token pickup text, landing puffs, and personal-best celebrations
 - Immediate replay with optional score saving and remembered initials
@@ -120,7 +120,7 @@ On mobile, use the large **Jump** and **Duck** buttons. You can also tap the upp
 
 Collect golden tokens for **25 points** each. Every 30 seconds marks another level, with shorter gaps between obstacle groups and more frequent double loads at higher levels. Spacing has a safe minimum so you still have room to jump and land.
 
-Reach **1,000 points** to earn **one extra life per run**, including points from tokens. Your next collision consumes it and grants **three seconds of invulnerability**: Hamperman flashes gold while passing safely through obstacles. Jumping, ducking, scoring, and token collection continue normally. The life indicator shows whether the life is ready, used, or providing protection. After protection ends, the next collision ends your run. Restarting resets the life reward. With reduced motion enabled, protection uses a steady gold tint.
+Earn **one extra life every 1,000 points**, including points from tokens. Unused lives stack: reaching 2,000 points without using the first life gives you two. Each collision consumes one saved life and grants **three seconds of invulnerability**: Hamperman flashes gold while passing safely through obstacles. Jumping, ducking, scoring, and token collection continue normally. The life indicator shows your saved lives and protection time, or the next reward threshold when no lives remain. After protection ends, another collision consumes the next saved life or ends your run if none remain. Restarting resets your lives and reward thresholds. With reduced motion enabled, protection uses a steady gold tint.
 
 Press **P** or **Escape** to pause or resume, and **M** to toggle sound. Switching away from the game pauses it until you explicitly resume; this also freezes the invulnerability timer.
 

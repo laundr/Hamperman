@@ -152,15 +152,35 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
     assert.ok(countObjects(300) > countObjects(0) * 2, 'Higher levels should spawn substantially more objects');
   });
 
-  test('An extra life is awarded once at 1,000 points, including token score jumps', () => {
+  test('Extra lives stack at every 1,000 points, including token score jumps', () => {
     const life = new sim.RunLife();
     assert.equal(life.award(999), false);
-    assert.equal(life.extraLife, false);
+    assert.equal(life.lives, 0);
     assert.equal(life.award(1000), true);
-    assert.equal(life.extraLife, true);
+    assert.equal(life.lives, 1);
+    assert.equal(life.award(1999), false);
+    assert.equal(life.award(2000), true);
+    assert.equal(life.lives, 2);
     assert.equal(life.award(2000), false);
+    assert.equal(life.lives, 2);
+    assert.equal(life.nextLifeScore, 3000);
     life.reset();
     assert.equal(life.award(990 + sim.TOKEN_POINTS), true);
+    assert.equal(life.award(1990 + sim.TOKEN_POINTS), true);
+    assert.equal(life.lives, 2);
+  });
+
+  test('Score jumps award all crossed thresholds and replay resets stacked lives', () => {
+    const life = new sim.RunLife();
+    assert.equal(life.award(3500), true);
+    assert.equal(life.lives, 3);
+    assert.equal(life.nextLifeScore, 4000);
+    assert.equal(life.award(3501), false);
+    life.reset();
+    assert.equal(life.lives, 0);
+    assert.equal(life.nextLifeScore, 1000);
+    assert.equal(life.award(1000), true);
+    assert.equal(life.lives, 1);
   });
 
   test('A hit consumes the extra life once; protection ends after three active seconds', () => {
@@ -168,7 +188,7 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
     assert.equal(life.hit(), 'dead');
     life.award(1000);
     assert.equal(life.hit(), 'saved');
-    assert.equal(life.extraLife, false);
+    assert.equal(life.lives, 0);
     for (let i = 0; i < 3 * 144 - 1; i++) {
       assert.equal(life.hit(), 'protected');
       life.update(sim.STEP);
@@ -177,11 +197,28 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
     life.update(sim.STEP);
     assert.equal(life.invulnerability, 0);
     assert.equal(life.hit(), 'dead');
-    assert.equal(life.award(3000), false, 'A consumed life must not be re-awarded');
+    assert.equal(life.award(1000), false, 'A consumed life must not be re-awarded');
+    assert.equal(life.award(2000), true, 'The next threshold must award a new life');
+    assert.equal(life.lives, 1);
     life.reset();
     assert.equal(life.invulnerability, 0);
-    assert.equal(life.extraLife, false);
+    assert.equal(life.lives, 0);
     assert.equal(life.award(1000), true);
+  });
+
+  test('Each unprotected hit consumes one stacked life and protected hits consume none', () => {
+    const life = new sim.RunLife();
+    life.award(1000);
+    life.award(2000);
+    assert.equal(life.hit(), 'saved');
+    assert.equal(life.lives, 1);
+    assert.equal(life.hit(), 'protected');
+    assert.equal(life.lives, 1);
+    life.update(sim.INVULNERABILITY_SECONDS);
+    assert.equal(life.hit(), 'saved');
+    assert.equal(life.lives, 0);
+    life.update(sim.INVULNERABILITY_SECONDS);
+    assert.equal(life.hit(), 'dead');
   });
 
   test('Flashing follows the player through jumps and ducks and resets after protection', () => {
@@ -467,15 +504,28 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
     assert.equal(document.getElementById('milestone-label').textContent, 'LEVEL 21');
     Object.defineProperty(Player.prototype, 'bounds', original);
   });
-  test('Extra-life collision continues the game, freezes protection on pause, then ends on another hit', () => {
+  test('The HUD shows two unused lives at 2,000 points', () => {
     const get = id => document.getElementById(id);
-    assert.equal(get('life-value').textContent, '1', 'The previous ten-minute run should have earned a life');
+    const original = Object.getOwnPropertyDescriptor(Player.prototype, 'bounds');
+    Object.defineProperty(Player.prototype, 'bounds', { configurable: true, get: () => ({ x: -10000, y: 0, width: 1, height: 1 }) });
+    try {
+      for (let i = 0; i < 60 * 400 && Number(get('score-value').textContent.replace(/,/g, '')) < 2000; i++) gameApp.ticker.tick();
+      assert.equal(get('score-value').textContent, '2,000');
+      assert.equal(get('life-value').textContent, '2');
+      assert.equal(get('life-status').textContent, 'Ready');
+      assert.equal(get('game-overlay').hidden, true);
+    } finally { Object.defineProperty(Player.prototype, 'bounds', original); }
+  });
+
+  test('Stacked lives survive separate hits, freeze protection on pause, and reset on replay', () => {
+    const get = id => document.getElementById(id);
+    assert.equal(get('life-value').textContent, '2');
     const original = Object.getOwnPropertyDescriptor(Player.prototype, 'bounds');
     Object.defineProperty(Player.prototype, 'bounds', { configurable: true, get: () => ({ x: -10000, y: -10000, width: 20000, height: 20000 }) });
     try {
       gameApp.ticker.tick();
       assert.equal(get('game-overlay').hidden, true);
-      assert.equal(get('life-value').textContent, '0');
+      assert.equal(get('life-value').textContent, '1');
       assert.equal(get('life-status').textContent, 'Safe · 3s');
       for (let i = 0; i < 60; i++) gameApp.ticker.tick();
       assert.equal(get('game-overlay').hidden, true, 'Further hits should be ignored');
@@ -485,7 +535,10 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
       assert.equal(get('life-status').textContent, protection);
       get('resume-button').onclick();
       for (let i = 0; i < 240; i++) gameApp.ticker.tick();
-      assert.equal(get('end-panel').hidden, false, 'The next hit after protection expires should end the run');
+      assert.equal(get('game-overlay').hidden, true, 'The second saved life should keep the run going');
+      assert.equal(get('life-value').textContent, '0');
+      for (let i = 0; i < 240; i++) gameApp.ticker.tick();
+      assert.equal(get('end-panel').hidden, false, 'A hit after both lives and protection are used should end the run');
       get('replay-button').onclick();
       assert.equal(get('life-value').textContent, '0');
       assert.equal(get('life-status').textContent, 'At 1,000');

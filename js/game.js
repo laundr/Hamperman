@@ -42,9 +42,9 @@ function updateHUD() {
   document.getElementById('score-value').textContent = Math.round(score).toLocaleString();
   document.getElementById('best-value').textContent = Math.round(Math.max(score, leaderboard.best)).toLocaleString();
   document.getElementById('tokens-value').textContent = tokens;
-  document.getElementById('life-value').textContent = runLife.extraLife ? '1' : '0';
+  document.getElementById('life-value').textContent = String(runLife.lives);
   document.getElementById('life-status').textContent = runLife.invulnerability > 0
-    ? `Safe · ${Math.ceil(runLife.invulnerability)}s` : runLife.extraLife ? 'Ready' : runLife.earned ? 'Used' : 'At 1,000';
+    ? `Safe · ${Math.ceil(runLife.invulnerability)}s` : runLife.lives > 0 ? 'Ready' : `At ${runLife.nextLifeScore.toLocaleString()}`;
   const milestone = milestoneAt(runTime);
   document.getElementById('milestone-label').textContent = `LEVEL ${milestone.level}`;
   document.getElementById('milestone-progress').value = runTime % 30;
