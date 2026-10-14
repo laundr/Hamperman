@@ -155,7 +155,7 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
       assert.ok(later.maxGap <= earlier.maxGap);
       assert.ok(later.doubleChance >= earlier.doubleChance);
     }
-    assert.ok(sim.difficultyAt(60).maxGap < sim.difficultyAt(0).minGap);
+    assert.ok(sim.difficultyAt(60).maxGap < sim.difficultyAt(0).maxGap);
     assert.ok(sim.difficultyAt(120).doubleChance > 0.6);
     function countObjects(startTime) {
       const world = fakeWorld();
@@ -169,6 +169,38 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
     }
     assert.ok(countObjects(60) > countObjects(0) * 2, 'One minute should reach a dense obstacle stream');
     assert.ok(countObjects(300) > countObjects(0) * 2, 'Higher levels should spawn substantially more objects');
+  });
+
+  test('Random gaps stay varied above the safety floor, even at top speed', () => {
+    for (const width of [427.5, 900]) for (const seconds of [0, 60, 240, 36000]) {
+      const speed = sim.worldSpeed(width, seconds);
+      for (const groupWidth of [55, 130, 328]) {
+        const gaps = [0, 0.25, 0.5, 0.75, 0.999].map(roll => sim.nextGap(seconds, groupWidth, speed, () => roll));
+        assert.equal(new Set(gaps).size, gaps.length, 'Random rolls must not collapse to one spacing');
+        assert.ok(gaps[4] - gaps[0] > 0.79, 'Late levels still need substantial timing variation');
+        assert.ok(gaps[0] >= groupWidth / speed + 0.9);
+      }
+    }
+  });
+
+  test('Double loads vary separation without changing the first teaching example', () => {
+    const separations = [];
+    for (const roll of [0, 0.5, 0.999]) {
+      const spawner = new Spawner(fakeApp(), fakeWorld(), {}, () => {}, () => {}, () => {}, () => roll);
+      spawner.introducedIron = true;
+      spawner.groups = 2;
+      spawner.spawn(35);
+      assert.equal(spawner.obstacles[1].sprite.x - spawner.obstacles[0].sprite.x, 55);
+      spawner.destroy();
+      const rolls = [0.5, 0.5, roll, 0];
+      spawner.random = () => rolls.shift();
+      spawner.spawn(60);
+      separations.push(spawner.obstacles[1].sprite.x - spawner.obstacles[0].sprite.x);
+      assert.ok(spawner.wait >= (55 + separations.at(-1)) / sim.worldSpeed(900, 60) + 0.9);
+      spawner.destroy();
+    }
+    assert.ok(separations[0] >= 45 && separations[2] <= 75);
+    assert.ok(separations[2] - separations[0] > 29);
   });
 
   test('Extra lives stack at every 1,000 points, including token score jumps', () => {
@@ -283,7 +315,8 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
   test('All ground groups have a clearable held jump on desktop and portrait', () => {
     for (const width of [427.5, 900]) for (const seconds of [0, 30, 60, 90, 120, 180, 240, 300, 36000]) {
       const speed = sim.worldSpeed(width, seconds);
-      for (const double of [false, true]) {
+      for (const separation of [0, 45, 55, 75]) {
+        const double = separation > 0;
         let possible = false;
         // Search timing windows before the first obstacle reaches the player.
         for (let delay = 0; delay < 1 && !possible; delay += sim.STEP) {
@@ -295,11 +328,11 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
             const playerBounds = { x: -69, y: body.y - 60, width: 63, height: 57 };
             const x = 230 - speed * t;
             hit ||= sim.overlaps(playerBounds, { x: x - 22.5, y: 202.5 - 60, width: 45, height: 58 });
-            if (double) hit ||= sim.overlaps(playerBounds, { x: x + 55 - 21.5, y: 202.5 - 38, width: 43, height: 36 });
+            if (double) hit ||= sim.overlaps(playerBounds, { x: x + separation - 21.5, y: 202.5 - 38, width: 43, height: 36 });
           }
           possible = !hit;
         }
-        assert.ok(possible, `No timing window: width ${width}, seconds ${seconds}, double ${double}`);
+        assert.ok(possible, `No timing window: width ${width}, seconds ${seconds}, separation ${separation}`);
       }
     }
   });
@@ -307,7 +340,7 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
   test('Minimum gaps allow consecutive ground groups, including level speed changes', () => {
     for (const width of [427.5, 900]) for (const boundary of [30, 60, 90, 120, 180, 240, 300]) {
       for (const startTime of [boundary, boundary - 0.15]) for (const firstDouble of [false, true]) {
-        const gap = sim.nextGap(startTime, firstDouble ? 110 : 55, sim.worldSpeed(width, startTime), () => 0);
+        const gap = sim.nextGap(startTime, firstDouble ? 130 : 55, sim.worldSpeed(width, startTime), () => 0);
         let safeWindows = 0;
         for (let delay = 0; delay < 1; delay += sim.STEP) {
           const body = { y: 202.5, ground: 202.5, velocity: 0, buffer: 0 };
@@ -322,7 +355,7 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
             const playerBounds = { x: -69, y: body.y - 60, width: 63, height: 57 };
             const collides = (x, double) => sim.overlaps(playerBounds,
               { x: x - 22.5, y: 142.5, width: 45, height: 58 }) || (double && sim.overlaps(playerBounds,
-              { x: x + 55 - 21.5, y: 164.5, width: 43, height: 36 }));
+              { x: x + 75 - 21.5, y: 164.5, width: 43, height: 36 }));
             hit = collides(firstX, firstDouble) || (t >= gap && collides(secondX, true));
           }
           safeWindows += Number(!hit);
@@ -360,6 +393,102 @@ global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,
     assert.deepEqual(names, ['laundrySprite', 'washerSprite', 'ironSprite', 'washerSprite', 'laundrySprite']);
     assert.equal(hints.length, 3);
     assert.ok(spawner.wait >= 0.85);
+  });
+
+  test('Flying Vs are occasional, teach ducking, and leave room behind the entire formation', () => {
+    const world = fakeWorld(), hints = [];
+    const spawner = new Spawner(fakeApp(), world, {}, () => {}, () => {}, hint => hints.push(hint), () => 0.05);
+    spawner.spawn(20); spawner.spawn(35);
+    spawner.destroy();
+    spawner.spawn(44);
+    assert.equal(spawner.obstacles.length, 1, 'Formations do not appear before 45 seconds');
+    spawner.destroy();
+    spawner.spawn(45);
+    assert.equal(spawner.obstacles.length, 7);
+    assert.equal(new Set(spawner.obstacles.map(item => item.height)).size, 1);
+    assert.ok(hints.at(-1).includes('Flying V'));
+    assert.ok(spawner.wait >= 328 / sim.worldSpeed(world.width, 45) + 0.9);
+    assert.equal(spawner.tokens.length, 1);
+    assert.equal(spawner.tokens[0].sprite.y, world.ground - 22, 'Formation tokens stay on the duck path');
+    spawner.destroy();
+    for (let i = 0; i < 2; i++) {
+      spawner.spawn(60);
+      assert.equal(spawner.obstacles.length, 1, 'Two ordinary groups separate formations');
+      spawner.destroy();
+    }
+    spawner.spawn(60);
+    assert.equal(spawner.obstacles.length, 7);
+    assert.equal(hints.filter(hint => hint.includes('Flying V')).length, 1);
+    spawner.destroy();
+    assert.equal(world.children.size, 0);
+    assert.equal(new Spawner(fakeApp(), world, {}, () => {}, () => {}, () => {}).introducedFormation, false);
+  });
+
+  test('Flying Vs clear ducking players but block walking and every short or held jump timing', () => {
+    for (const width of [427.5, 900]) for (const seconds of [45, 60, 120, 240, 36000]) {
+      const world = fakeWorld(width), player = new Player(fakeApp(), world, null, () => {});
+      const spawner = new Spawner(fakeApp(), world, player, () => {}, () => {}, () => {}, () => 0.05);
+      spawner.introducedIron = spawner.introducedDouble = true;
+      spawner.spawn(seconds);
+      const speed = sim.worldSpeed(width, seconds);
+      const duration = (width + 55 + 264 + 32 - (player.x - 69)) / speed + sim.STEP;
+      const hits = (t, bounds) => spawner.obstacles.some(item => sim.overlaps(bounds,
+        { ...spawner.bounds(item), x: spawner.bounds(item).x - speed * t }));
+      player.update(sim.STEP, { jump: false, duck: true });
+      for (let t = 0; t <= duration; t += sim.STEP) assert.equal(hits(t, player.bounds), false);
+      player.reset();
+      assert.ok(Array.from({ length: Math.ceil(duration / sim.STEP) }, (_, i) => hits(i * sim.STEP, player.bounds)).some(Boolean));
+      for (const hold of [0, 0.1, 0.25, Infinity]) for (let delay = 0; delay < duration; delay += sim.STEP) {
+        player.reset();
+        let hit = false, triggered = false;
+        for (let t = 0; t <= duration && !hit; t += sim.STEP) {
+          if (!triggered && t >= delay) { player.requestJump(); triggered = true; }
+          player.update(sim.STEP, { jump: triggered && t - delay < hold, duck: false });
+          hit = hits(t, player.bounds);
+        }
+        assert.ok(hit, `Jump bypasses V: width ${width}, time ${seconds}, delay ${delay}, hold ${hold}`);
+      }
+      spawner.destroy();
+    }
+  });
+
+  test('Minimum gaps allow switching between jumping ground loads and ducking formations', () => {
+    for (const width of [427.5, 900]) for (const seconds of [45, 59.85, 119.85, 239.85, 36000]) {
+      for (const firstFormation of [false, true]) {
+        const world = fakeWorld(width), player = new Player(fakeApp(), world, null, () => {});
+        const spawner = new Spawner(fakeApp(), world, player, () => {}, () => {}, () => {}, () => 0.5);
+        spawner.introducedIron = spawner.introducedDouble = true;
+        spawner.groups = 2;
+        const buildGroup = formation => {
+          spawner.random = () => formation ? 0.05 : 0.5;
+          spawner.spawn(seconds);
+          const bounds = spawner.obstacles.map(item => ({ ...spawner.bounds(item),
+            x: spawner.bounds(item).x - (width + 55) + player.x + 230 }));
+          spawner.destroy();
+          return bounds;
+        };
+        const first = buildGroup(firstFormation), second = buildGroup(!firstFormation);
+        const gap = sim.nextGap(seconds, firstFormation ? 328 : 130, sim.worldSpeed(width, seconds), () => 0);
+        let safeWindows = 0;
+        for (let delay = 0; delay < 1; delay += sim.STEP) {
+          player.reset();
+          let firstMotion = 0, secondMotion = 0, triggered = false, leftGround = false, hit = false;
+          for (let t = 0; t < gap + 3 && !hit; t += sim.STEP) {
+            if (!triggered && t >= delay + (firstFormation ? gap : 0)) { player.requestJump(); triggered = true; }
+            const duck = firstFormation ? !triggered : leftGround && player.body.y === world.ground;
+            player.update(sim.STEP, { jump: true, duck });
+            leftGround ||= player.body.y < world.ground;
+            const movement = sim.worldSpeed(width, seconds + t) * sim.STEP;
+            firstMotion += movement;
+            if (t >= gap) secondMotion += movement;
+            hit = first.some(bounds => sim.overlaps(player.bounds, { ...bounds, x: bounds.x - firstMotion })) ||
+              (t >= gap && second.some(bounds => sim.overlaps(player.bounds, { ...bounds, x: bounds.x - secondMotion })));
+          }
+          safeWindows += Number(!hit);
+        }
+        assert.ok(safeWindows >= 6, `No usable jump/duck transition: width ${width}, time ${seconds}, formation first ${firstFormation}`);
+      }
+    }
   });
 
   test('Ten-minute runs keep spawning tokens and houses; cleanup removes all sprites', () => {

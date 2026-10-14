@@ -9,6 +9,8 @@ export default class Spawner {
     this.groups = 0;
     this.introducedIron = false;
     this.introducedDouble = false;
+    this.introducedFormation = false;
+    this.lastFormation = -3;
   }
 
   update(dt, seconds) {
@@ -74,10 +76,22 @@ export default class Spawner {
     let groupWidth = 55;
     let iron = seconds >= 20 && roll < 0.25;
     let double = seconds >= 35 && roll >= 0.25 && roll < 0.25 + difficultyAt(seconds).doubleChance;
+    const formation = seconds >= 45 && this.introducedIron && this.introducedDouble &&
+      this.groups - this.lastFormation >= 3 && roll < 0.14;
     // Each new action gets a predictable first example.
     if (seconds >= 20 && !this.introducedIron) { iron = true; double = false; }
     if (seconds >= 35 && !this.introducedDouble) { double = true; iron = false; }
-    if (iron) {
+    if (formation) {
+      if (!this.introducedFormation) this.onHint('Flying V! Hold ↓ or Duck until all seven irons pass.');
+      this.introducedFormation = true;
+      this.lastFormation = this.groups;
+      // Connected wings rise beyond the highest jump; the low center clears a duck.
+      for (let i = 0; i < 7; i++) {
+        this.obstacle('ironSprite', x + i * 44, this.world.ground - (48 + Math.abs(i - 3) * 24));
+      }
+      groupWidth = 6 * 44 + 64;
+      if (this.groups % 3 === 0) this.token(x + 3 * 44, this.world.ground - 22);
+    } else if (iron) {
       const high = !this.introducedIron || this.random() < 0.65;
       if (!this.introducedIron) this.onHint('Flying iron ahead! Hold ↓ or Duck to pass underneath.');
       this.introducedIron = true;
@@ -88,14 +102,16 @@ export default class Spawner {
       if (this.groups === 1) this.onHint('Washing machine ahead! Hold Space / ↑ or Jump to clear it.');
       const name = this.groups === 0 ? 'laundrySprite' : this.groups === 1 || this.random() < 0.55 ? 'washerSprite' : 'laundrySprite';
       this.obstacle(name, x, this.world.ground);
+      let separation = 0;
       if (double) {
         if (!this.introducedDouble) this.onHint('Double load! Hold Jump for a longer leap.');
+        separation = this.introducedDouble ? 45 + this.random() * 30 : 55;
         this.introducedDouble = true;
-        this.obstacle('laundrySprite', x + 55, this.world.ground);
-        groupWidth = 110;
+        this.obstacle('laundrySprite', x + separation, this.world.ground);
+        groupWidth = 55 + separation;
       }
       // A bonus follows the arc over the obstacle; it never forces a conflicting duck.
-      if (seconds >= 12 && this.groups % 3 === 0) this.token(x + (double ? 25 : 0), this.world.ground - 108);
+      if (seconds >= 12 && this.groups % 3 === 0) this.token(x + separation / 2, this.world.ground - 108);
     }
     this.groups++;
     this.wait = this.groups === 1 ? 3.6 : nextGap(seconds, groupWidth, worldSpeed(this.world.width, seconds), this.random);

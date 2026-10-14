@@ -25,6 +25,7 @@ Game code was created using Javascript. Active deployments are created with [her
 - Variable-height jumps, ducking, fast falls, and a 150 ms jump input buffer
 - A predictable first obstacle and contextual hints for new actions
 - 14% faster movement each level up to 2.6× starting speed, with denser obstacle groups and more double loads
+- Random gaps between groups and within double loads, plus occasional flying V formations of seven irons that require ducking
 - Time-based score increases with the speed multiplier, from 2.08 to 5.408 points per second
 - One extra life every 1,000 points; unused lives stack, and a hit consumes one and grants three seconds of flashing invulnerability
 - Tokens worth 25 points, placed along jump and duck paths throughout the run
@@ -117,11 +118,11 @@ For browser verification, run `PORT=8080 npm start` and open `http://localhost:8
 
 ## How to play
 
-Press **Space** or **↑** to jump. Hold it to jump higher and farther. Press and hold **↓** to duck under high flying irons; pressing it in the air accelerates your fall. A brief jump press just before landing is buffered so it can take effect after you touch down. Each new press makes one jump.
+Press **Space** or **↑** to jump. Hold it to jump higher and farther. Press and hold **↓** to duck under high flying irons; pressing it in the air accelerates your fall. After 45 seconds, occasional **flying V formations of seven irons** require you to stay ducked until the whole formation passes: their wings are too high to jump over. A brief jump press just before landing is buffered so it can take effect after you touch down. Each new press makes one jump.
 
 On mobile, use the large **Jump** and **Duck** buttons. You can also tap the upper two-thirds of the game field to jump or the lower third to duck. Hold to maintain the action; the separate buttons support simultaneous touches.
 
-Collect golden tokens for **25 points** each. Every 30 seconds marks another level and increases movement speed by **14%**, up to **2.6×** starting speed at level 9. Obstacle groups start closer together, gaps shrink by 18% per level until their minimum, and double loads become more frequent. Spacing always leaves room for a held jump and landing before the next group.
+Collect golden tokens for **25 points** each. Every 30 seconds marks another level and increases movement speed by **14%**, up to **2.6×** starting speed at level 9. Obstacle groups start closer together, minimum gaps shrink by 18% per level until their floor, and double loads become more frequent. Gaps vary throughout the run, including at top speed, and the two items in a double load have variable separation. Spacing always leaves room for a held jump and landing before the next group, or time to finish ducking under a formation.
 
 Earn **one extra life every 1,000 points**, including points from tokens. Unused lives stack: reaching 2,000 points without using the first life gives you two. Each collision consumes one saved life and grants **three seconds of invulnerability**: Hamperman flashes gold while passing safely through obstacles. Jumping, ducking, scoring, and token collection continue normally. The life indicator shows your saved lives and protection time, or the next reward threshold when no lives remain. After protection ends, another collision consumes the next saved life or ends your run if none remain. Restarting resets your lives and reward thresholds. With reduced motion enabled, protection uses a steady gold tint.
 

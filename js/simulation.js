@@ -16,7 +16,7 @@ export function difficultyAt(seconds) {
   // Each level is noticeably faster; keep a ceiling for portrait reaction time.
   const speed = Math.min(2.6, Math.pow(1.14, completedLevels));
   const minGap = Math.max(0.9, 1.7 * Math.pow(0.82, completedLevels));
-  const maxGap = Math.max(minGap + 0.25, 2.4 * Math.pow(0.82, completedLevels));
+  const maxGap = Math.max(minGap + 0.8, 2.4 * Math.pow(0.82, completedLevels));
   const doubleChance = Math.min(0.7, 0.35 + completedLevels * 0.065);
   return { speed, minGap, maxGap, doubleChance };
 }
@@ -29,7 +29,9 @@ export function worldSpeed(width, seconds) {
 export function nextGap(seconds, groupWidth, speed, random = Math.random) {
   const { minGap, maxGap } = difficultyAt(seconds);
   // Leave room for a full held jump and landing before the next group arrives.
-  return Math.max(minGap + random() * (maxGap - minGap), groupWidth / speed + 0.9);
+  const safeGap = Math.max(minGap, groupWidth / speed + 0.9);
+  // Sample above the safety floor rather than clamping different rolls to one cadence.
+  return safeGap + random() * (maxGap - minGap);
 }
 
 export class RunLife {
