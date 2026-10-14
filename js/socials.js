@@ -21,7 +21,7 @@ export default class Socials {
     const points = Math.round(score);
     // This URL's link preview shows the score: see api/score.mjs.
     this.url = `https://laundr.io/hamperman/score/${points}`;
-    this.text = `I scored ${points.toLocaleString('en-US')} in Hamperman! No sock left behind. Can you beat it?`;
+    this.text = `I scored ${points.toLocaleString('en-US')} in Hamperman. Can you beat it?`;
     document.getElementById('share-twitter').href =
       `https://twitter.com/intent/tweet?text=${encodeURIComponent(this.text)}&url=${encodeURIComponent(this.url)}`;
     document.getElementById('share-facebook').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(this.url)}`;
